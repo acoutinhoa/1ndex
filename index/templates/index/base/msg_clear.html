@@ -1,0 +1,7 @@
+<div 
+    class="c{{ cor|default:'2' }} {{ class|default:'legenda' }}"
+    hx-get="{% url 'index:clear' %}" 
+    hx-swap="outerHTML"
+    hx-trigger="load delay:{{ tempo|default:'3' }}s">
+    >>> {{ msg|safe|default:'concluido.' }}
+</div>

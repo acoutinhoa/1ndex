@@ -1,0 +1,20 @@
+{% if busca %}
+{% for u in results %}
+<div class="row">
+    <input type="hidden" name="nova-mae" id="mae-{{ forloop.counter }}" value="{{ u.id }}" />
+    <div 
+        class="link btn fl"
+        hx-post="{% url 'index:edit-filhos-transferir' pk=filho.pk url=url %}"
+        hx-target="#nova-mae"
+        hx-confirm="você realmente deseja transferir '{{ filho }}' para a responsabilidade de '{{ u }}'?"
+        hx-include="#mae-{{ forloop.counter }}">
+        {{ u }}
+    </div>
+    <div class="btn fl ml">{{ u.nome|default:"" }}</div>
+</div>
+
+{% empty %}
+<div class="c2 legenda">nenhum user encontrado</div>
+
+{% endfor %}
+{% endif %}

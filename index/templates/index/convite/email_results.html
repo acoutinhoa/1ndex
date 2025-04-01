@@ -1,0 +1,24 @@
+{% if not perfil %}
+    <input type="submit" class="link btn c2 center mt" value="continuar" />
+
+{% else %}
+    {% if perfil.is_active %}
+    este email está em uso<br>
+    defina outro email para continuar
+    
+    {% else %}
+    este email está vinculado a uma conta <b>inativa</b><br><br>
+    se você deseja reativar a sua conta, clique no botão abaixo para continuar
+
+    <input type="hidden" name='reativar' value="true" />
+    <input type="submit" class="link btn c2 center mt" value="reativar conta" />
+    {% comment %} <div
+        hx-post="{% url 'index:reativar' pk=convite.pk %}"
+        hx-target="#body"
+        hx-push-url="true"
+        class="link btn c2 center mt" >
+        reativar conta
+    </div> {% endcomment %}
+    {% endif %}
+
+{% endif %}

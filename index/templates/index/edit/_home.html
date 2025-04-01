@@ -1,0 +1,17 @@
+{% extends 'index/base/_base.html' %}
+
+{% block index %}
+{% include "index/edit/_index.html" %}
+{% endblock %}
+
+{% block tags %}
+{% include "index/base/menu.html" %}
+{% endblock %}
+
+{% block content %}
+<div 
+    hx-get={{ content }} 
+    hx-target=this
+    hx-trigger="load" 
+    hx-swap="outerHTML"></div>
+{% endblock %}

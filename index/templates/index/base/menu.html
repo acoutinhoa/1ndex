@@ -1,0 +1,30 @@
+<div x-data="{tab: '{{ ativo }}'}" id='menu' class='row h2 mt'>
+    {% for item,link in menu %}
+    
+    {% if item == 'deletar' %}
+    <input type="hidden" name="redireciona" value="true" />
+    <div 
+        class="link2 mr c2"
+        hx-delete="{{ link }}"
+        hx-confirm="tem certeza que deseja deletar {{ tipo }} '{{ perfil.nome }}'? - após esta ação nenhum dado do {{ tipo }} pode ser recuperado"
+        hx-include="[name='redireciona']"
+        hx-push-url="true"
+        hx-target="#body" >
+        {{ item }}/
+    </div>
+
+    {% else %}
+    <div 
+        {% comment %} class="mr {% if ativo == item %}ativo{% else %}link2{% endif %}" {% endcomment %}
+        class="mr"
+        :class="tab == '{{ item }}' ? 'ativo' : 'link2'"
+        @click.prevent="tab = '{{ item }}'"
+        hx-get="{{ link }}"
+        hx-push-url="/{{ url }}/edit/{{ item }}/"
+        hx-target="#content" >
+        {{ item }}/
+    </div>
+    {% endif %}
+    
+    {% endfor %}
+</div>

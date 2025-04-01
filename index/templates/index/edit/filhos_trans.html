@@ -1,0 +1,34 @@
+
+<h2>transferência de <a class="link" href="{{ filho.get_absolute_url }}">{{ filho }}</a></h2>
+
+<div id="nova-mae" class="mt1 w80">
+    <h2 class='c2'>nova mãe</h2>
+    <input
+        type="text"
+        name="search" 
+        hx-post="{% url 'index:search-mae' url=url pk=filho.pk %}"
+        hx-target="#results"
+        hx-trigger="keyup chaged delay:500ms"
+        placeholder="nome ou codinome"
+        autocomplete="off" />
+
+    <div id="results"></div>
+
+    <div class="legenda c1 mt">
+        não pode ser descendente de <b>{{ filho }}</b><br>
+        deve ter uma conta ativa<br>
+    </div>
+</div>
+
+<div class="linha"></div>
+
+<div class="w80 mb mt">
+    <h2 class="c2">sobre a transferência de responsabilidade:</h2>
+    <ul class="c2 mt2">
+        <li>durante o processo de transferência, a conta de <b>{{ filho }}</b> (e dos descendentes de <b>{{ filho }}</b>) ficará inativa até a <b>nova mãe</b> aceitar a transferência.</li>
+        <li>caso haja recusa, <b>{{ filho }}</b> precisará de um novo convite para retomar o acesso a sua conta.</li>
+        <li>os descendentes de <b>{{ filho }}</b> poderão aguardar o retorno, ou se vincularem a outros usuários por meio de novos convites.</li>
+        <li>não prossiga sem antes conversar com os envolvidos.</li>
+        <li>PROSSIGA COM RESPEITO E RESPONSABILIDADE.</li>
+    </ul>
+</div>

@@ -1,0 +1,53 @@
+{% extends 'index/convite/_base.html' %}
+{% load index_tags %}
+
+{% block content %}
+
+{% if not request.user.is_authenticated %}
+    <h2 >olá {{ convite.nome }}<br> bem vind_ ao 1ndex</h2>
+    <div class="mt1 w80 mb2">
+        este é um projeto <b>em desenvolvimento</b>, criado inicialmente para documentar processos e gerar portfólios.<br><br>
+        ao se cadastrar com este link, <b>{{ convite.u0 }}</b> será responsável por você no sistema.<br><br>
+        prezamos o <b>respeito</b> e a <b>responsabilidade</b>.
+    </div>
+    
+    <div class="linha"></div>
+    
+    <h2 class="c2">cadastro</h2>
+    <div class="mt" id="form-cadastro">
+        {% include 'index/convite/cadastro_email.html' %}
+    </div>
+
+
+{% elif request.user == convite.u0 %}
+    <div id="edit" class="w80 mt">
+        {% include 'index/convite/edit.html' %}
+    </div>
+
+{% else %}
+    <h2 class="c2">olá {{ request.user }}<br>você possui uma conta logada no 1ndex</h2>
+    <div class="mt1 w80">
+        se você deseja criar uma <b>nova conta</b> com <b>outro email</b>, 
+        faça <span class="link c2" hx-post="{% url 'logout' %}?next={{request.path}}" hx-push-url="true" hx-target="#body" hx-swap="outerHTML">logout</span> para acessar o formulário de cadastro
+    </div>
+
+    {% if convite.u0 != request.user.u0 %}
+    {% if not request.user|descendente:convite.u0 %}
+        <div class="linha"></div>
+
+        <h2 class="c2">{{ convite.u0 }} não é responsável por você</h2>
+        <div class="mt1 w80">
+            se você deseja que <b>{{ convite.u0 }}</b> seja sua nova m4e, clique no link abaixo para realizar a transferência de responsabilidade
+            <div 
+                class="link btn mt center"
+                hx-post="{% url 'index:trans-convite' pk=convite.pk %}"
+                hx-target="#content" >
+                transferir
+            </div>
+        </div>
+    {% endif %}
+    {% endif %}
+
+{% endif %}
+
+{% endblock %}

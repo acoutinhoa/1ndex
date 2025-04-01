@@ -1,0 +1,24 @@
+{% load index_tags %}
+
+{% if user.is_authenticated %}
+<p class="c2 txtr legenda mb2">online: {{ user.last_login|timesince }}</p>
+<!-- perfil -->
+<a href="{{ user.get_absolute_url }}"><div class="link btn fl">{{ user.url }}</div></a>
+<!-- logout -->
+<div class="link btn c2 fr" 
+    hx-post="{% url 'logout' %}?next={{request.path}}"
+    hx-push-url="true"
+    hx-target="#body" 
+    hx-swap="outerHTML">
+    logout
+</div>    
+<!-- edit -->
+<a href="{% url 'index:edit' url=user.url %}"><div class="link btn fr c2 mr">edit</div></a>
+
+{% else %}
+<a href="{% url 'login' %}?next={{request.path}}">
+    <div class="link btn c2 fl">login</div>
+</a>
+{% comment %} <a href="{% url 'login' %}?next={{request.path}}" class="txt">login</a> {% endcomment %}
+
+{% endif %}

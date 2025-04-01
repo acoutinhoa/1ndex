@@ -1,0 +1,12 @@
+{% if results != 'ok' %}
+<div class="legenda c2 mb">
+    {% if results == 'no' %}
+    codinome indisponível
+    {% elif results == 'size' %}
+    digite 2 ou mais caracteres
+    {% elif results %}
+    utilize somente caracteres minúsculos, maiúsculos, números, _, -, +, . e @
+    {% endif %}
+</div>
+{% endif %}
+

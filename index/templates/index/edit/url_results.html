@@ -1,0 +1,25 @@
+{% if results == 'ok' %}
+<div id="submit"
+    class="btn link c2 ml"
+    hx-swap-oob="true"
+    hx-post="{% url 'index:edit-url' url=url %}"
+    hx-confirm="tem certeza que deseja alterar o codinome? - se você alterou 'nome' ou 'info', salve as informações antes de continuar"
+    hx-target="#edit-url"
+    hx-include="[name='nova-url']">
+    atualizar
+</div>
+
+{% else %}
+<div class="c2">
+    {% if results == 'no' %}
+    codinome indisponível</div>
+    {% elif results == 'size' %}
+    digite 2 ou mais caracteres
+    {% elif results %}
+    use somente caracteres minúsculos, maiúsculos, números, _, -, +, . e @
+    {% comment %} não use <b>{{ results }}</b> {% endcomment %}
+    {% endif %}
+</div>
+
+<div id="submit" hx-swap-oob="true"></div>
+{% endif %}

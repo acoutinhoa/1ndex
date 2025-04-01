@@ -1,0 +1,11 @@
+{% extends 'index/base/_base.html' %}
+
+{% block index %}
+{% include "index/base/titulo.html" with extra='convite' %}
+{% endblock %}
+
+{% block tags %}
+<div class="mt c1 w80">
+    este é um convite de <a class="link" href="{{ convite.u0.get_absolute_url }}">{{ convite.u0 }}</a> para se cadastrar no <a class="link" href="{% url 'index:index' %}">1ndex</a>
+</div>
+{% endblock %}

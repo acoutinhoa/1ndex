@@ -1,0 +1,30 @@
+{% if msg %}
+{% include 'index/base/msg_clear.html' with class='mb legenda' %}
+{% endif %}
+
+<form 
+    method="POST" 
+    hx-post="{% url 'index:edit-info' url=url %}" 
+    hx-target='#form-info'
+    autocomplete="off">
+    {% csrf_token %}
+    
+    {% for field in form %}
+    <h2 class="{% if field.name == 'nome' and not url.user %}c2{% else %}mt{% endif %}">{{ field.label_tag }}</h2>
+    {{ field }}
+    
+    {% if field.errors %}
+    {% for erro in field.errors %}
+    <p class="legenda c2">{{ erro }}</p>
+    {% endfor %}
+    {% endif %}
+    
+    {% endfor %}
+
+    <input 
+        type="submit" 
+        class="link btn c2 center" 
+        value="salvar" />
+</form>
+
+

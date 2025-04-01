@@ -1,0 +1,45 @@
+{% extends 'index/convite/_base.html' %}
+{% load widget_tweaks %}
+
+{% block content %}
+<h2 >olá {{ convite.nome }}<br>falta pouco (:</h2>
+<div class="mt1 w80 mb2">
+    sua conta será registrada com o email <b>{{ convite.email }}</b><br>
+    crie um codinome e uma senha para finalizar seu cadastro.
+    {% comment %} seu cadastro será finalizado após definir um <b>codinome</b>. 
+    ele deve ser único e poderá ser alterado quando quiser. 
+    pode conter caracteres minúsculos, maiúsculos, números, _, -, +, . e @ {% endcomment %}
+</div>
+
+<div class="linha"></div>
+<h2 class="c2">cadastro</h2>
+
+<form 
+    class='w50 mt'
+    action="{% url 'index:cadastro' pk=convite.pk %}"
+    method="POST" 
+    autocomplete="off">
+    {% csrf_token %}
+    <div class="c2 legenda mb">{{ form.non_field_errors }}</div>
+
+    <div class="c1 b lower">{{ form.username.label_tag }}</div>
+    {% url 'index:check-codinome' as path %}
+    {% render_field form.username|remove_attr:"autofocus" placeholder='crie um codinome' hx-post=path hx-target="#results" hx-trigger="keyup chaged delay:500ms" %}
+    <div id="results"></div>
+    {% if form.username.errors %}<div class="legenda c2 mb">{{ form.username.errors }}</div>{% endif %}
+
+    <div class="c1 b lower">{{ form.password1.label_tag }}</div>
+    {% render_field form.password1 placeholder='defina uma senha' %}
+    {% if form.password1.errors %}<div class="legenda c2 mb">{{ form.password1.errors }}</div>{% endif %}
+
+    <div class="c1 b lower">{{ form.password2.label_tag }}</div>
+    {% render_field form.password2 placeholder='confirme a senha' %}
+    {% if form.password2.errors %}<div class="legenda c2 mb">{{ form.password2.errors }}</div>{% endif %}
+
+    <input 
+        type="submit" 
+        class="link btn c2 center mt" 
+        value="1ndexar" />
+</form>
+
+{% endblock %}

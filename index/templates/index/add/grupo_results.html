@@ -1,0 +1,16 @@
+{% if results == 'yes' %}
+<div 
+    id="submit"
+    class="btn link c2 ml"
+    hx-swap-oob="true"
+    hx-post="{% url 'index:add-grupo' url=url %}"
+    hx-target="#novo-grupo"
+    hx-include="[name='novo-grupo']">
+    criar
+</div>
+
+{% else %}
+<div class="c2 mb">digite 2 ou mais caracteres</div>
+<div id="submit" hx-swap-oob="true"></div>
+
+{% endif %}

@@ -1,0 +1,11 @@
+{% if template %}<input type="hidden" name="template" value="{{ template }}" />{% endif %}
+<div 
+    class="c{{ cor|default:'2' }} {{ class|default:'legenda' }}"
+    hx-get="{{ redirect }}"
+    {% if template %}hx-include="[name='template']"{% endif %}
+    hx-push-url="{{ push|default:'false' }}"
+    hx-swap="{{ swap|default:'innerHTML' }}"
+    hx-target="{{ target|default:'#content' }}"
+    hx-trigger="load delay:{{ tempo|default:'2' }}s">
+    >>> {{ msg|safe|default:'concluido.' }}
+</div>

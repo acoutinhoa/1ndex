@@ -1,0 +1,55 @@
+{% extends "index/base/_base.html" %}
+
+{% block user %}
+{% endblock %}
+
+{% block index %}
+{% include 'index/base/titulo.html' with extra='login' %}
+{% endblock %}
+
+{% block content %}
+
+{% comment %} {% if next %}
+    {% if user.is_authenticated %}
+    <p>Your account doesn't have access to this page. To proceed,
+    please login with an account that has access.</p>
+    {% else %}
+    <p>Please login to see this page.</p>
+    {% endif %}
+{% endif %} {% endcomment %}
+
+<form method="post" class="w50 mt1" action="{% url 'login' %}" id="login-form">
+    {% csrf_token %}
+
+    {% comment %} <table>
+    <tr>
+        <td>{{ form.username.label_tag }}</td>
+        <td>{{ form.username }}</td>
+    </tr>
+    <tr>
+        <td>{{ form.password.label_tag }}</td>
+        <td>{{ form.password }}</td>
+    </tr>
+    </table> {% endcomment %}
+    {% comment %} <input type="submit" value="login"> {% endcomment %}
+
+    <div class="c2 legenda mb">{{ form.non_field_errors }}</div>
+
+    {% for field in form %}
+    <div class="c1 mt2 lower"><b>{{ field.label }}</b></div>
+    {{ field }}
+    {% if field.errors %}<div class="legenda c2 mb">{{ field.errors }}</div>{% endif %}
+    {% endfor %}
+    
+    <input type="hidden" name="next" value="{{ next }}">
+    <input type="submit" class="link btn center" form="login-form" value="entrar" />
+</form>
+
+<div class="mt1 mb1">
+    {# Assumes you set up the password_reset view in your URLconf #}
+    <a href="{% url 'password_reset' %}">
+        <div class="link btn c2">lost password?</div>
+    </a>
+    {% comment %} <p><a href="{% url 'password_reset' %}">Lost password?</a></p> {% endcomment %}
+</div>
+{% endblock %}

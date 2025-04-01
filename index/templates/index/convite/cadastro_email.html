@@ -1,0 +1,15 @@
+{% load widget_tweaks %}
+
+<form 
+    class='w50' 
+    action="{% url 'index:convite' pk=convite.pk %}"
+    method="POST" 
+    autocomplete="off">
+    {% csrf_token %}
+
+    <div class="c1 b lower">{{ form.email.label_tag }}</div>
+    {% url 'index:check-email' pk=convite.pk as path %}
+    {% render_field form.email placeholder='digite seu email' hx-post=path hx-target="#results" hx-trigger="keyup chaged delay:500ms" %}
+    {% if form.email.errors %}<div class="legenda c2 mb">{{ form.email.errors }}</div>{% endif %}
+    <div id="results" class="c2" {% if convite.email %}hx-trigger="load" hx-post={{ path }} hx-include="[nome='email']"{% endif %}></div>
+</form>

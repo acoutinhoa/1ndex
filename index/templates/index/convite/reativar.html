@@ -1,0 +1,29 @@
+{% extends 'index/convite/_base.html' %}
+
+{% block content %}
+<h2 >olá {{ convite.nome }}<br>falta pouco (:</h2>
+<div class="mt1 w80 mb2">
+    faça o <b>login</b> para reativar a conta vinculada ao email <b>{{ convite.email }}</b>
+</div>
+
+<div class="linha"></div>
+
+<form method="post" class="w50" action="{% url 'index:reativar' pk=convite.pk %}" >
+    {% csrf_token %}
+    <div class="c2 legenda mb">{{ form.non_field_errors }}</div>
+
+    {% for field in form %}
+    <div class="c1 mt2 lower"><b>{{ field.label }}</b></div>
+    {{ field }}    
+    {% if field.errors %}<div class="legenda c2 mb">{{ field.errors }}</div>{% endif %}
+    {% endfor %}
+    
+    <input type="submit" class="link btn center" value="reativar conta" />
+</form>
+
+<div class="mt1 mb1">
+    <a href="{% url 'password_reset' %}">
+        <div class="link btn c2">lost password?</div>
+    </a>
+</div>
+{% endblock %}

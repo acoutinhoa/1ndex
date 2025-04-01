@@ -1,0 +1,35 @@
+<!-- titulo -->
+{% include 'index/base/titulo.html' with extra='edit' %}
+
+<!-- links sistema -->
+{% if user.url == perfil.url or user in perfil.u0.all %}
+<a href="{{ perfil.get_absolute_url }}"><div class="link btn c2 fr">perfil</div></a>
+{% endif %}
+
+<div class="mt1"></div>
+
+<!-- visibilidade -->
+{% if tipo == 'grupo' %}
+<div class="legenda {% if perfil.publico %}c1{% else %}c2{% endif %}">
+    grupo {% if perfil.publico %}público{% else %}privado{% endif %}
+</div>
+
+{% if perfil.url|safe != perfil.id|safe %}
+<input type="hidden" name="template" value="index/edit/_index.html" />
+<input type="hidden" name="var" value="perfil" />
+<div 
+    class="link btn legenda {% if perfil.publico %}c2{% endif %}" 
+    hx-post="{% url 'index:grupo-visibilidade' url=url %}"
+    hx-target="#index"
+    hx-include="[name='template'],[name='var']" >
+    {% if perfil.publico %}privatizar{% else %}publicar{% endif %}
+</div>
+
+{% else %}
+<i class="legenda">altere o codinome para poder tornar este grupo público</i>
+
+{% endif %}
+
+<div class="mt1"></div>
+{% endif %}
+

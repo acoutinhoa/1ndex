@@ -1,0 +1,73 @@
+<!-- titulo -->
+{% include 'index/base/titulo.html' %}
+
+<!-- perfil -->
+{% if perfil %}
+
+<!-- links sistema -->
+{% if user.url == perfil.url or user in perfil.u0.all %}
+<a href="{% url 'index:edit' url=url %}"><div class="link btn c2 fr">edit</div></a>
+{% endif %}
+
+<!-- info -->
+<div class="mt1 mb1">
+    {% if perfil.nome %}<h2 class="mt1 c0">{{ perfil.nome }}</h2>{% endif %}
+    <!-- info sistema -->
+    <div class="c1 legenda txtr mt2">
+        idade: {{ perfil.d0|timesince }}<br>
+        {% if tipo == 'user' and perfil.u0 %}
+        m4e: <a class='link' href="{{ perfil.u0.get_absolute_url }}">{{ perfil.u0 }}</a><br>
+        {% comment %} {% elif tipo == 'grupo' %}
+        4dms: {% for p in pessoas %}<a class="link" href="{{ p.get_absolute_url }}">{{ p }}</a>{% if not forloop.last %} + {% endif %}{% endfor %}<br> {% endcomment %}
+        {% endif %}
+    </div>
+    {% if perfil.info %}<p class="mt">{{ perfil.info|linebreaksbr }}</p>{% endif %}
+</div>
+{% endif %}
+
+
+<!-- pessoas -->
+{% if pessoas %}
+<div class="linha2"></div>
+<div class="c1">
+    {% if tipo == 'user' %}filhos{% elif tipo == 'grupo' %}adms{% else %}pessoas{% endif %} [{{ pessoas.count }}]<br>
+</div>
+
+<div id="pessoas">
+    {% for p in pessoas %}
+    <a href="{{ p.get_absolute_url }}"><div class="link btn">{{ p.url }}</div></a>
+    {% endfor %}
+</div>
+{% endif %}
+
+
+<!-- grupos -->
+{% if grupos %}
+<div class="linha2"></div>
+<div class="c1">
+    grupos [{{ grupos.count }}]<br>        
+</div>
+
+<div id="grupos">
+    {% for g in grupos %}
+    <a href="{{ g.get_absolute_url }}"><div class="link btn {% if not g.publico %}c2{% endif %}">{{ g.nome }}</div></a>
+    {% endfor %}
+</div>
+{% endif %}
+
+
+<!-- projetos -->
+{% if projetos %}
+<div class="linha2"></div>
+<div class="mt1 c1">
+    projetos [{{ projetos.count }}]<br>
+</div>
+
+<div id="projetos">
+    {% for p in projetos %}
+    <a href=""><div class="link">{{ p }}</div></a>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="mt1"></div>

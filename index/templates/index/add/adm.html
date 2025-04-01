@@ -1,0 +1,10 @@
+<input
+    type="text"
+    name="search" 
+    hx-post="{% url 'index:search-adm' url=url %}"
+    hx-target="#results"
+    hx-trigger="keyup chaged delay:500ms"
+    placeholder="nome ou codinome"
+    autocomplete="off" />
+
+<div id="results"></div>

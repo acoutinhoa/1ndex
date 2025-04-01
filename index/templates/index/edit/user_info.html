@@ -1,0 +1,17 @@
+<!-- titulo -->
+<h3><li><a class="link {% if not u.is_active %}c2{% endif %}" href="{{ u.get_absolute_url }}">{{ u.url }}</a></li></h3>
+
+<!-- info -->
+<div class="margem3">
+    {% if not u.is_active %}<span class="legenda c2">conta inativa</span><br>{% endif %}
+    <span class="c1">nome</span> {{ u.nome|default:"-" }}<br>
+    <span class="c1">conta criada em</span> {{ u.d0|date:"d/m/y" }} às {{ u.d0|date:"H:i" }}<br>
+    <span class="c1">ultima edição em</span> {{ u.d1|date:"d/m/y" }} às {{ u.d1|date:"H:i" }}<br>
+    {# <span class="c1">ultimo login em</span> {{ u.last_login|date:"d/m/y" }} às {{ u.last_login|date:"H:i" }}<br> #}
+    <span class="c1">grupos públicos</span>
+        {% for g in u.grupos_publicos %}
+        <a class="link" href="{{ g.get_absolute_url }}">{{ g.nome }}</a>{% if not forloop.last %} + {% endif %}
+        {% empty %}
+        -
+        {% endfor %}<br>
+</div>

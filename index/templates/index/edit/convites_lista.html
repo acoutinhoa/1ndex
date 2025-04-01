@@ -1,0 +1,9 @@
+<h2>convites [{{ convites.count|default:'0' }}]</h2>
+
+<ol>
+    {% for c in convites %}
+    <div class='mt1' id="c-{{ forloop.counter }}">
+        {% include 'index/edit/convites_info.html' %}
+    </div>
+    {% endfor %}
+</ol>

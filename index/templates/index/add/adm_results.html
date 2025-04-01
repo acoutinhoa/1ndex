@@ -1,0 +1,19 @@
+{% if busca %}
+{% for u in results %}
+<input type="hidden" name="novo-adm" id="adm-{{ forloop.counter }}" value="{{ u.id }}" />
+<div class="row">
+    <div 
+        class="link btn fl"
+        hx-post="{% url 'index:add-adm' url=url %}"
+        hx-target="#add-adm"
+        hx-include="#adm-{{ forloop.counter }}">
+        {{ u }}
+    </div>
+    <div class="btn fl ml">{{ u.nome|default:"" }}</div>
+</div>
+
+{% empty %}
+<div class="c2 legenda">nenhum user encontrado</div>
+
+{% endfor %}
+{% endif %}

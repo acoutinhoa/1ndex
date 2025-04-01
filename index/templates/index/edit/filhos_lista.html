@@ -1,0 +1,10 @@
+<h2>filhos [{{ filhos.count|default:'0' }}]</h2>
+
+<ol>
+    {% for u in filhos %}
+    <div class='mt1' id='u-{{ forloop.counter }}'>
+    {% include 'index/edit/filhos_info.html' %}
+    </div>
+    {% endfor %}
+</ol>
+
