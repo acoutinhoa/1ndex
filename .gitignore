@@ -14,6 +14,9 @@ db.sqlite3
 # Static folder at project root
 /static/
 
+# illustrator
+ai/
+
 # macOS
 ._*
 .DS_Store
