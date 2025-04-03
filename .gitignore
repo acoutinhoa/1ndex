@@ -13,9 +13,11 @@ db.sqlite3
 
 # Static folder at project root
 /static/
+/media/
 
 # illustrator
 ai/
+*.ai
 
 # macOS
 ._*

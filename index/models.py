@@ -6,6 +6,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator, MinLeng
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.urls import reverse
 from django.utils.text import slugify
+from datetime import datetime
 # from django.template.defaultfilters import slugify
 
 
@@ -108,6 +109,48 @@ class Convite(models.Model):
 
     def get_absolute_url(self):
         return reverse('index:convite', kwargs={'pk': self.pk})
+
+class Tag(models.Model):
+    nome = models.SlugField(allow_unicode=True, unique=True)
+    publico = models.BooleanField(default=True)
+
+    def __str__(self):
+        return str(self.nome)
+
+    class Meta:
+        ordering = ['nome']
+
+def projeto_imagepath(instance, filename):
+    return 'index/{0}/{1}'.format(instance.pk, filename)
+
+class Projeto(Base):
+    publico = models.BooleanField(default=False)
+    grupo = models.ForeignKey(Grupo, blank=True, null=True, on_delete=models.CASCADE, related_name='projetos')
+    tag = models.ManyToManyField(Tag, related_name='projetos')
+    ano = models.PositiveSmallIntegerField(blank=True, null=True, validators=[MinValueValidator(1900), MaxValueValidator(2100)], default=datetime.today().year)
+    url = models.SlugField(max_length=119)
+    Etapa = models.IntegerChoices("Etapa", "RASCUNHO DESENVOLVIMENTO FINALIZADO")
+    etapa = models.IntegerField(choices=Etapa, default=3)
+    texto = models.TextField(blank=True, null=True,)
+    imagem = models.ImageField(upload_to=projeto_imagepath, max_length=100, blank=True, null=True,)
+    # -equipe [m2m] [user] > [trabalho] (X criador) ‘projetos’
+    # -ordem [] ()
+    # -tempo total [gen] (X)
+
+    def mudar_visibilidade(self):
+        self.publico = not self.publico
+        self.save()
+
+    # def save(self, *args, **kwargs):
+    #     novo = self._state.adding
+    #     super().save(*args, **kwargs)
+        
+    #     if novo:
+    #         Url.objects.create(grupo=self, nome=self.id, ) # define url do user
+
+    # def get_absolute_url(self):
+    #     return reverse('index:perfil', kwargs={'url': self.url})
+
 
 
 ##############################################
