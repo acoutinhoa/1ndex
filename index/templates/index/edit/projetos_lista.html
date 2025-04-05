@@ -1,0 +1,11 @@
+<h2>projetos [{{ projetos.count|default:'0' }}]</h2>
+<input type="hidden" name="var" value="p" />
+<input type="hidden" name="template" value="index/edit/projetos_info.html" />
+
+<ol>
+    {% for p in projetos %}
+    <div class='mt1' id='p-{{ forloop.counter }}'>
+        {% include 'index/edit/projetos_info.html' with n=forloop.counter %}
+    </div>
+    {% endfor %}
+</ol>

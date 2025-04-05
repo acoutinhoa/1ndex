@@ -7,7 +7,6 @@ from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.urls import reverse
 from django.utils.text import slugify
 from datetime import datetime
-# from django.template.defaultfilters import slugify
 
 
 class User(AbstractUser):
@@ -21,7 +20,7 @@ class User(AbstractUser):
     d0 = models.DateTimeField(auto_now_add=True)
     d1 = models.DateTimeField(auto_now=True)
     nome = models.CharField(max_length=119, blank=True, null=True)
-    info = models.CharField(max_length=912, blank=True, null=True)
+    info = models.CharField(max_length=912, blank=True, null=True, verbose_name='bio')
 
     def grupos_publicos(self):
         return self.grupos.filter(publico=True)
@@ -51,7 +50,7 @@ class Base(models.Model):
     d0 = models.DateTimeField(auto_now_add=True)
     d1 = models.DateTimeField(auto_now=True)
     nome = models.CharField(max_length=119, validators=[MinLengthValidator(2),])
-    info = models.CharField(max_length=912, blank=True, null=True)
+    info = models.CharField(max_length=912, blank=True, null=True, verbose_name='bio')
 
     def __str__(self):
         return str(self.nome)
@@ -66,6 +65,13 @@ class Grupo(Base):
     u0 = models.ManyToManyField(User, related_name='grupos') # adicionar o user aos u0 quando o grupo for criada
     publico = models.BooleanField(default=False, verbose_name='grupo público')
 
+    def define_url(self, n=0):
+        slug = slugify(self.nome)
+        while Url.objects.filter(nome=slug).exists():
+            n += 1
+            slug = f"{slug.split('-')[0]}-{n}"
+        return slug
+
     def mudar_visibilidade(self):
         self.publico = not self.publico
         self.save()
@@ -75,7 +81,7 @@ class Grupo(Base):
         super().save(*args, **kwargs)
         
         if novo:
-            Url.objects.create(grupo=self, nome=self.id, ) # define url do user
+            Url.objects.create(grupo=self, nome=self.define_url(), ) # define url do grupo
 
     def get_absolute_url(self):
         return reverse('index:perfil', kwargs={'url': self.url})
@@ -92,6 +98,9 @@ class Url(models.Model):
 
     class Meta:
         ordering = ['id']
+
+    def get_absolute_url(self):
+        return reverse('index:perfil', kwargs={'url': self.nome})
 
 
 class Convite(models.Model):
@@ -120,37 +129,42 @@ class Tag(models.Model):
     class Meta:
         ordering = ['nome']
 
+
 def projeto_imagepath(instance, filename):
     return 'index/{0}/{1}'.format(instance.pk, filename)
 
 class Projeto(Base):
+    texto = models.TextField(blank=True, null=True)
     publico = models.BooleanField(default=False)
-    grupo = models.ForeignKey(Grupo, blank=True, null=True, on_delete=models.CASCADE, related_name='projetos')
-    tag = models.ManyToManyField(Tag, related_name='projetos')
+    perfil = models.ForeignKey(Url, on_delete=models.CASCADE, related_name='projetos')
+    tags = models.ManyToManyField(Tag, related_name='projetos')
     ano = models.PositiveSmallIntegerField(blank=True, null=True, validators=[MinValueValidator(1900), MaxValueValidator(2100)], default=datetime.today().year)
     url = models.SlugField(max_length=119)
     Etapa = models.IntegerChoices("Etapa", "RASCUNHO DESENVOLVIMENTO FINALIZADO")
     etapa = models.IntegerField(choices=Etapa, default=3)
-    texto = models.TextField(blank=True, null=True,)
-    imagem = models.ImageField(upload_to=projeto_imagepath, max_length=100, blank=True, null=True,)
+    # imagem = models.ImageField(upload_to=projeto_imagepath, max_length=100, blank=True, null=True,)
     # -equipe [m2m] [user] > [trabalho] (X criador) ‘projetos’
     # -ordem [] ()
     # -tempo total [gen] (X)
+
+    def define_url(self, n=0):
+        slug = slugify(self.nome)
+        while Projeto.objects.filter(perfil=self.perfil, nome=slug).exists():
+            n += 1
+            slug = f"{slug.split('-')[0]}-{n}"
+        return slug
 
     def mudar_visibilidade(self):
         self.publico = not self.publico
         self.save()
 
-    # def save(self, *args, **kwargs):
-    #     novo = self._state.adding
-    #     super().save(*args, **kwargs)
+    def save(self, *args, **kwargs):
+        if self._state.adding: 
+            self.url = self.define_url() # define url ao criar o projeto
+        super().save(*args, **kwargs)
         
-    #     if novo:
-    #         Url.objects.create(grupo=self, nome=self.id, ) # define url do user
-
-    # def get_absolute_url(self):
-    #     return reverse('index:perfil', kwargs={'url': self.url})
-
+    def get_absolute_url(self):
+        return reverse('index:projeto', kwargs={'url': self.perfil, 'purl':self.url})
 
 
 ##############################################

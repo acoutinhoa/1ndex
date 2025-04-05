@@ -1,0 +1,14 @@
+<div class="row baseline">
+    <input
+        type="text"
+        class="w80"
+        name="novo-projeto" 
+        hx-post="{% url 'index:check-projeto' url=url %}" 
+        hx-target="#results"
+        hx-trigger="keyup chaged delay:500ms"
+        placeholder="nome"
+        autocomplete="off" />
+    <div id="submit"></div>
+</div>
+
+<div id="results" class="legenda"></div>

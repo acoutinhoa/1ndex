@@ -1,0 +1,22 @@
+<!-- titulo -->
+{% if perfil.grupo %}
+{% include 'index/base/titulo.html' with perfil=perfil.grupo tipo='grupo' %}
+{% else %}
+{% include 'index/base/titulo.html' with perfil=perfil.user %}
+{% endif %}
+
+<!-- perfil -->
+{% if editor %}
+<!-- links sistema -->
+<a href="{% url 'index:projeto-edit' url=perfil purl=projeto.url %}"><div class="link btn c2 fr">edit</div></a>
+{% endif %}
+
+<!-- info -->
+<div class="mt3">
+    <h2 class="c0">{{ projeto.nome }}</h2>
+    <!-- info sistema -->
+    <div class="c1 legenda txtr">
+        editado: {{ projeto.d1|timesince }}<br>
+        perfil: <a class='link' href="{{ perfil.get_absolute_url }}">{{ perfil }}</a><br>
+    </div>
+</div>

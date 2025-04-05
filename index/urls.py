@@ -15,7 +15,7 @@ responsa_patterns = [
 
 # edit htmx
 edit_htmx_patterns = [
-    path('info/', views.edit_info, name='edit-info'),
+    path('perfil/', views.edit_info, name='edit-perfil'),
     path('url/', views.edit_url, name='edit-url'),
     path('filhos/', views.edit_filhos, name='edit-filhos'),
     path('filhos/<str:pk>/', include(responsa_patterns)),
@@ -36,10 +36,10 @@ edit_patterns = [
 # add
 add_patterns = [
     # path('', views.add, name='add-index'),
-    #htmx
     path('grupo/', views.add_grupo, name='add-grupo'),
     path('adm/', views.add_adm, name='add-adm'),
     path('convite/', views.add_convite, name='add-convite'),
+    path('projeto/', views.add_projeto, name='add-projeto'),
 ]
 
 # delete
@@ -48,16 +48,35 @@ delete_patterns = [
     path('adm/<str:pk>/', views.delete_adm,  name='delete-adm'),
 ]
 
+# projeto edit
+projeto_edit_patterns = [
+    path('', views.projeto_edit, name='projeto-edit'),
+    path('<str:ativo>/', views.projeto_edit, name='projeto-edit-ativo'),
+    #htmx
+    path('htmx/', include(edit_htmx_patterns)),
+]
+
+# projetos
+projeto_patterns = [
+    path('', views.projeto, name='projeto'),
+    path('edit/', include(projeto_edit_patterns)),
+    # path('delete/', include(delete_patterns)),
+    # #htmx
+    # path('htmx/', include(edit_htmx_patterns)),
+]
+
 # perfil
 perfil_patterns = [
     path('', views.index, name='perfil'),
+    # profile
     path('edit/', include(edit_patterns)),
     path('add/', include(add_patterns)),
     path('delete/', include(delete_patterns)),
-    # search
-    path('search/adm/', views.search_adm, name='search-adm'),
-    # visibilidade
-    path('visibilidade/grupo/', views.grupo_visibilidade, name='grupo-visibilidade'),
+    # htmx
+    path('htmx/search/adm/', views.search_adm, name='search-adm'),
+    path('htmx/visibilidade/grupo/', views.grupo_visibilidade, name='grupo-visibilidade'),
+    # projetos
+    path('<str:purl>/', include(projeto_patterns)),
 ]
 
 # invite
@@ -77,6 +96,7 @@ htmx_patterns = [
     path('check/codinome/<str:url>/', views.check_codinome, name='check-url'),
     path('check/nome/<str:url>/', views.check_nome, name='check-nome'),
     path('check/email/<str:pk>/', views.check_email, name='check-email'),
+    path('check/projeto/<str:url>/', views.check_projeto, name='check-projeto'),
 ]
 
 # geral

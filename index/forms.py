@@ -9,7 +9,7 @@ class UserForm(forms.ModelForm):
         model = User
         fields = ['nome','info',]
         widgets = { 
-            'info': forms.Textarea(attrs={'rows': 9}),
+            'info': forms.Textarea(attrs={'rows': 5}),
             }
 
 # grupo info edit
@@ -18,7 +18,7 @@ class GrupoForm(forms.ModelForm):
         model = Grupo
         fields = ['nome','info']
         widgets = { 
-            'info': forms.Textarea(attrs={'rows': 9}),
+            'info': forms.Textarea(attrs={'rows': 5}),
             }
 
 # url
@@ -44,6 +44,14 @@ class ReativarForm(forms.Form):
     username = forms.CharField(label='codinome')
     password = forms.CharField(label='Password', widget=forms.PasswordInput)
 
+# projetos 
+class ProjetoForm(forms.ModelForm):
+    class Meta:
+        model = Projeto
+        fields = ['nome',]
+        widgets = { 
+            'info': forms.Textarea(attrs={'rows': 9}),
+            }
 
 
 # ##########################################################

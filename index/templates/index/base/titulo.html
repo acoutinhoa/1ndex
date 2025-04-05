@@ -1,11 +1,15 @@
-<div class="mt1 mb1 h1">
+<div class="h1">
     <a class='link2' href="{% url 'index:index' %}">1ndex/</a><br>
 
     {% if perfil %}
-    <a class="link2 {% if tipo == 'grupo' and not perfil.publico %}c2{% endif %}" href="{{ perfil.get_absolute_url }}">{{ url }}/</a><br>
+    <a class="link2 {% if tipo == 'grupo' and not perfil.publico %}c2{% endif %}" href="{{ perfil.get_absolute_url }}">{{ perfil.url }}/</a><br>
+    {% endif %}
+
+    {% if projeto %}
+    <a class="link2 {% if not projeto.publico %}c2{% endif %}" href="{{ projeto.get_absolute_url }}">{{ projeto.url }}/</a><br>
     {% endif %}
 
     {% if extra %}
-    <span class="c2">{{ extra }}/</span><br>
+    <span class="c0">{{ extra }}/</span><br>
     {% endif %}
 </div>

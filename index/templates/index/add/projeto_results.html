@@ -1,0 +1,22 @@
+{% if results == 'ok' %}
+<div 
+    id="submit"
+    class="btn link c2 ml"
+    hx-swap-oob="true"
+    hx-post="{% url 'index:add-projeto' url=url %}"
+    hx-target="#novo-projeto"
+    hx-include="[name='novo-projeto']">
+    criar
+</div>
+
+{% else %}
+<div class="c2 mb">
+    {% if results == 'size' %}
+        digite 2 ou mais caracteres
+    {% elif results == 'no' %}
+        nome indisponível
+    {% endif %}
+</div>
+<div id="submit" hx-swap-oob="true"></div>
+
+{% endif %}

@@ -10,11 +10,11 @@
 {% endif %}
 
 <!-- info -->
-<div class="mt1 mb1">
-    {% if perfil.nome %}<h2 class="mt1 c0">{{ perfil.nome }}</h2>{% endif %}
+<div class="mt3">
+    {% if perfil.nome %}<h2 class="c0">{{ perfil.nome }}</h2>{% endif %}
     <!-- info sistema -->
     <div class="c1 legenda txtr mt2">
-        idade: {{ perfil.d0|timesince }}<br>
+        1dade: {{ perfil.d0|timesince }}<br>
         {% if tipo == 'user' and perfil.u0 %}
         m4e: <a class='link' href="{{ perfil.u0.get_absolute_url }}">{{ perfil.u0 }}</a><br>
         {% comment %} {% elif tipo == 'grupo' %}
@@ -30,7 +30,7 @@
 {% if pessoas %}
 <div class="linha2"></div>
 <div class="c1">
-    {% if tipo == 'user' %}filhos{% elif tipo == 'grupo' %}adms{% else %}pessoas{% endif %} [{{ pessoas.count }}]<br>
+    {% if tipo == 'user' %}fi1hos{% elif tipo == 'grupo' %}adms{% else %}pessoas{% endif %} [{{ pessoas.count }}]<br>
 </div>
 
 <div id="pessoas">
@@ -59,15 +59,13 @@
 <!-- projetos -->
 {% if projetos %}
 <div class="linha2"></div>
-<div class="mt1 c1">
+<div class="c1">
     projetos [{{ projetos.count }}]<br>
 </div>
 
 <div id="projetos">
-    {% for p in projetos %}
-    <a href=""><div class="link">{{ p }}</div></a>
+    {% for pro in projetos %}
+    <a href="{{ pro.get_absolute_url }}"><div class="link btn {% if not pro.publico %}c2{% endif %}">{{ pro }}</div></a>
     {% endfor %}
 </div>
 {% endif %}
-
-<div class="mt1"></div>

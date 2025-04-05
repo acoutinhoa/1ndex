@@ -1,1 +1,15 @@
-edit projetos
+<!-- novo -->
+<h2 class='c2'>novo projeto</h2>
+<div id='novo-projeto'>
+    {% include 'index/add/projeto.html' %}
+</div>
+
+{% if projetos %}
+<!-- linha -->
+<div class="linha"></div>
+
+<!-- projetos -->
+<div id="projetos" class="w80 mt mb">
+{% include 'index/edit/projetos_lista.html' %}
+</div>
+{% endif %}

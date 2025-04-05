@@ -1,6 +1,6 @@
 <!-- links -->
 <div class='row fr mt2'>
-    <a href="{% url 'index:edit' url=g.url %}"><div class="link btn ml">editar</div></a>
+    {% comment %} <a href="{% url 'index:edit' url=g.url %}"><div class="link btn ml">editar</div></a>
 
     {% if g.url|safe != g.id|safe %}
     <input type="hidden" name="n" value="{{ n }}" id="n-{{ n }}" />
@@ -20,20 +20,20 @@
         hx-swap="outerHTML"
         hx-target="#g-{{ n }}" >
         deletar
-    </div>
+    </div> {% endcomment %}
 </div>
 
 <!-- titulo -->
-<h3><li><a class="link {% if not g.publico %}c2{% endif %}" href="{{ g.get_absolute_url }}">{{ g.nome }}</a></li></h3>
+<h3><li><a class="link {% if not p.publico %}c2{% endif %}" href="{{ p.get_absolute_url }}">{{ p.nome }}</a></li></h3>
 
 <!-- info -->
 <div class="margem3">
-    {% if not g.publico %}<span class="legenda c2">grupo privado</span><br>{% endif %}
-    <span class="c1">codinome</span> {{ g.url }}<br>
-    <span class="c1">grupo criado em</span> {{ g.d0|date:"d/m/y" }} às {{ g.d0|date:"H:i" }}<br>
-    <span class="c1">ultima edição em</span> {{ g.d1|date:"d/m/y" }} às {{ g.d1|date:"H:i" }}<br>
-    <span class="c1">adms</span>
+    {% if not p.publico %}<span class="legenda c2">projeto privado</span><br>{% endif %}
+    <span class="c1">url</span> {{ p.url }}<br>
+    <span class="c1">projeto criado em</span> {{ p.d0|date:"d/m/y" }} às {{ p.d0|date:"H:i" }}<br>
+    <span class="c1">ultima edição em</span> {{ p.d1|date:"d/m/y" }} às {{ p.d1|date:"H:i" }}<br>
+    {% comment %} <span class="c1">adms</span>
         {% for p in g.u0.all %}
         <a class="link {% if not p.is_active %}c2{% endif %}" href="{{ p.get_absolute_url }}">{{ p }}</a>{% if not forloop.last %} + {% endif %}
-        {% endfor %}<br>
+        {% endfor %}<br> {% endcomment %}
 </div>
