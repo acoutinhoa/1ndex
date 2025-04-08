@@ -2,18 +2,22 @@
 <div class="c2 mt">
     seu convite foi criado com sucesso <b>:)</b><br><br>
     
-        {% if not convite.email %}
+    {% if not convite.email %}
     copie o <b>link</b> desta página e mande para <b>{{ convite.nome }}</b> <br>
     ou preencha o campo abaixo para enviar por <b>email</b>
 
-    <div class="row mt1 baseline">
+    <div class="mt" id="form-cadastro">
+        {% include 'index/convite/cadastro_email.html' %}
+    </div>
+    {% comment %} <div class="row mt1 baseline">
         <input 
             type="text" 
             name="email" 
             placeholder="não tá rolando email ainda"
             autocomplete="off" />
-        {% comment %} <div class="btn link c2 ml">enviar</div> {% endcomment %}
-    </div>
+        {% comment %} <div class="btn link c2 ml">enviar</div>
+    </div> {% endcomment %}
+    
     {% else %}
     o link de cadastro foi enviado para o email <b>{{ convite.email }}</b><br>
     mas você também pode copiar o <b>link</b> desta página e mandar para <b>{{ convite.nome }}</b> <br>

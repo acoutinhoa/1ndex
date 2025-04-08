@@ -7,9 +7,18 @@
     autocomplete="off">
     {% csrf_token %}
 
-    <div class="c1 b lower">{{ form.email.label_tag }}</div>
+    <div class="c1 b lower">{{ form.pronome.label_tag }}</div>
+    {{ form.pronome }}
+
+    {% if request.user == convite.u0 %}
+    <div class="c1 b lower mt">{{ form.email.label_tag }}</div>
+    {% render_field form.email placeholder='nao ta rolando enviar email ainda' %}
+
+    {% else %}
+    <div class="c1 b lower mt">{{ form.email.label_tag }}</div>
     {% url 'index:check-email' pk=convite.pk as path %}
     {% render_field form.email placeholder='digite seu email' hx-post=path hx-target="#results" hx-trigger="keyup chaged delay:500ms" %}
     {% if form.email.errors %}<div class="legenda c2 mb">{{ form.email.errors }}</div>{% endif %}
     <div id="results" class="c2" {% if convite.email %}hx-trigger="load" hx-post={{ path }} hx-include="[nome='email']"{% endif %}></div>
+    {% endif %}
 </form>

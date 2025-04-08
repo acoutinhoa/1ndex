@@ -89,6 +89,13 @@ h3, .h3 {font-size: 1.1em;}
 }
 .lower {text-transform: lowercase;}
 
+.pronome {
+    color: inherit;
+    /* color: var(--c2); */
+    border-bottom: solid var(--b2) var(--c0);
+}
+.transparente {color: transparent;}
+
 /*------------------------------------------------------------*/
 /* links */
 a, a:link, a:visited, a:hover {
@@ -178,9 +185,19 @@ input:focus, textarea:focus, select:focus {
 
 label {
     color: var(--c1);
-    text-transform: lowercase;;
+    text-transform: lowercase;
 }
 
+.choices, .choices div, .choices input, .choices select, .choices label {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: baseline;
+    padding-right: 9px;
+    margin-right: 4px;
+    width: auto;
+
+}
 
 /*------------------------------------------------------------*/
 /* layout */
@@ -199,7 +216,9 @@ label {
 
 /* margem */
 .ml {margin-left: 19px;}
+.ml2 {padding-left: 9px;}
 .mr {margin-right: 19px;}
+.mr2 {padding-right: 9px;}
 
 .mb {padding-bottom: 19px;}
 .mb1 {padding-bottom: 29px;}

@@ -1,9 +1,0 @@
-<!-- titulo -->
-{% if perfil.grupo %}
-{% include 'index/base/titulo.html' with perfil=perfil.grupo tipo='grupo' extra='edit' %}
-{% else %}
-{% include 'index/base/titulo.html' with perfil=perfil.user extra='edit' %}
-{% endif %}
-
-<!-- links sistema -->
-<a href="{{ projeto.get_absolute_url }}"><div class="link btn c2 fr">perfil</div></a>

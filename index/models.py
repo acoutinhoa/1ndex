@@ -8,6 +8,7 @@ from django.urls import reverse
 from django.utils.text import slugify
 from datetime import datetime
 
+Pronome = models.TextChoices("Pronome", "ELA ELE NENHUM QUALQUER_UM")
 
 class User(AbstractUser):
     # edita fields do djando
@@ -21,6 +22,7 @@ class User(AbstractUser):
     d1 = models.DateTimeField(auto_now=True)
     nome = models.CharField(max_length=119, blank=True, null=True)
     info = models.CharField(max_length=912, blank=True, null=True, verbose_name='bio')
+    pronome = models.CharField(choices=Pronome, max_length=13, default='NENHUM')
 
     def grupos_publicos(self):
         return self.grupos.filter(publico=True)
@@ -107,6 +109,7 @@ class Convite(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     u0 = models.ForeignKey(User, on_delete=models.CASCADE, related_name='convites')
     d0 = models.DateTimeField(auto_now_add=True)
+    pronome = models.CharField(choices=Pronome, max_length=13, default='NENHUM')
     nome = models.CharField(max_length=119, validators=[MinLengthValidator(2),])
     email = models.EmailField(blank=True, null=True)
 

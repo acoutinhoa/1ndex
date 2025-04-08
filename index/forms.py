@@ -7,9 +7,10 @@ import datetime
 class UserForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ['nome','info',]
+        fields = ['nome','pronome','info',]
         widgets = { 
             'info': forms.Textarea(attrs={'rows': 5}),
+            'pronome': forms.RadioSelect(attrs={'class': 'choices'}),
             }
 
 # grupo info edit
@@ -31,7 +32,10 @@ class UrlForm(forms.ModelForm):
 class ConviteForm(forms.ModelForm):
     class Meta:
         model = Convite
-        fields = ['email',]
+        fields = ['pronome','email',]
+        widgets = { 
+            'pronome': forms.RadioSelect(attrs={'class': 'choices'}),
+            }
 
 # cadastro
 class RegistrationForm(UserCreationForm):

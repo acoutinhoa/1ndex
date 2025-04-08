@@ -1,0 +1,26 @@
+{% load index_tags %}
+
+{% if tipo == 'grupo' %}
+    {% set perfil as item %}
+    {% set "perfil" as var %}
+    {% url 'index:grupo-visibilidade' url=url as link %}
+{% elif tipo == 'projeto' %}
+    {% set projeto as item %}
+    {% set "projeto" as var %}
+    {% url 'index:projeto-visibilidade' url=perfil purl=projeto.url as link %}
+{% endif %}
+
+<input type="hidden" name="template" value="index/base/_index.html" />
+<input type="hidden" name="var" value={{ var }} />
+<div class="btn ml2 fr {% if item.publico %}c1{% else %}c2{% endif %}">
+    [<span
+        class="link {% if item.publico %}c2{% endif %}" 
+        hx-post="{{ link }}"
+        hx-target="#index"
+        hx-include="[name='template'],[name='var']" >
+        {% if item.publico %}privatizar{% else %}publicar{% endif %}
+    </span>]
+</div>
+<div class="btn ml fr txtr {% if item.publico %}c1{% else %}c2{% endif %}">
+    {{ tipo }} {% if item.publico %}público{% else %}privado{% endif %}
+</div>

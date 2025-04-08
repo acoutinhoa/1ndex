@@ -2,7 +2,6 @@
 <div class='row fr mt2'>
     <a href="{% url 'index:edit' url=g.url %}"><div class="link btn ml">editar</div></a>
 
-    {% if g.url|safe != g.id|safe %}
     <input type="hidden" name="n" value="{{ n }}" id="n-{{ n }}" />
     <div 
         class="link btn ml {% if g.publico %}c2{% endif %}" 
@@ -11,7 +10,6 @@
         hx-include="[name='template'],[name='var'],#n-{{ n }}" >
         {% if g.publico %}privatizar{% else %}publicar{% endif %}
     </div>
-    {% endif %}
 
     <div 
         class="link btn c2 ml" 

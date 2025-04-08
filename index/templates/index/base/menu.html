@@ -6,7 +6,11 @@
     <div 
         class="link2 mr c2"
         hx-delete="{{ link }}"
-        hx-confirm="tem certeza que deseja deletar {{ tipo }} '{{ perfil.nome }}'? - após esta ação nenhum dado do {{ tipo }} pode ser recuperado"
+        {% if tipo == 'projeto' %}
+            hx-confirm="tem certeza que deseja deletar o projeto '{{ projeto.nome }}'? - após esta ação nenhum dado do projeto pode ser recuperado"
+        {% else %}
+            hx-confirm="tem certeza que deseja deletar {{ tipo }} '{{ perfil.nome }}'? - após esta ação nenhum dado do {{ tipo }} pode ser recuperado"
+        {% endif %}
         hx-include="[name='redireciona']"
         hx-push-url="true"
         hx-target="#body" >
@@ -20,7 +24,11 @@
         :class="tab == '{{ item }}' ? 'ativo' : 'link2'"
         @click.prevent="tab = '{{ item }}'"
         hx-get="{{ link }}"
-        hx-push-url="/{{ url }}/edit/{{ item }}/"
+        {% if tipo == 'projeto' %}
+            hx-push-url="/{{ perfil }}/{{ projeto.url }}/edit/{{ item }}/"
+        {% else %}
+            hx-push-url="/{{ url }}/edit/{{ item }}/"
+        {% endif %}
         hx-target="#content" >
         {{ item }}/
     </div>

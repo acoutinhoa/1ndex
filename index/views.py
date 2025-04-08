@@ -39,13 +39,36 @@ def menu_edit_grupo(url):
     ]
     return menu
 
+# menu projeto edit
+def menu_edit_projeto(url, purl):
+    menu = [
+        ['info',reverse_lazy('index:projeto-edit-info', kwargs={'url': url, 'purl': purl})],
+        ['texto',reverse_lazy('index:projeto-edit-texto', kwargs={'url': url, 'purl': purl})],
+        ['imagens',reverse_lazy('index:projeto-edit-imagens', kwargs={'url': url, 'purl': purl})],
+        ['equipe',reverse_lazy('index:projeto-edit-equipe', kwargs={'url': url, 'purl': purl})],
+        ['deletar',reverse_lazy('index:delete-projeto', kwargs={'url': url, 'purl': purl})],     
+    ]
+    return menu
+
 
 #########################################################################################################################
 # home
 #########################################################################################################################
 
+def get_perfil(url):
+    if url.user:
+        perfil = url.user
+    elif url.grupo:
+        perfil = url.grupo
+    return perfil
+
+#----------------------------------------------------------
+
+# home
 def index(request, url=None):
     user = request.user
+    editor = False
+    
     if url:
         url = get_object_or_404(Url, nome=url)
         
@@ -60,7 +83,9 @@ def index(request, url=None):
             grupos = perfil.grupos.all()
             projetos = perfil.url.projetos.all()
             
-            if perfil != user:
+            if user == perfil:
+                editor = True
+            else:
                 pessoas = pessoas.filter(is_active=True)
                 grupos = grupos.filter(publico=True)
                 projetos = projetos.filter(publico=True)
@@ -69,7 +94,6 @@ def index(request, url=None):
             tipo = 'grupo'
             perfil = url.grupo
 
-            # confere se o grupo é publico
             if not perfil.publico and user not in perfil.u0.all():
                 raise Http404("grupo privado")
             
@@ -77,7 +101,9 @@ def index(request, url=None):
             grupos = None
             projetos = perfil.url.projetos.all()
             
-            if user not in perfil.u0.all():
+            if user in perfil.u0.all():
+                editor = True
+            else:
                 pessoas = pessoas.filter(is_active=True)
                 projetos = projetos.filter(publico=True)
 
@@ -93,11 +119,12 @@ def index(request, url=None):
         'url': url,
         'perfil': perfil,
         'tipo': tipo,
+        'editor': editor,
         'pessoas': pessoas,
         'grupos': grupos,
         'projetos': projetos,
     }
-    return render(request, 'index/home/_home.html', context)
+    return render(request, 'index/base/_home.html', context)
 
 # edit home
 @login_required
@@ -109,38 +136,33 @@ def edit(request, url, ativo='perfil'):
     if url.user:
         perfil = url.user
         
-        # confere se o user é o dono do perfil
         if request.user != perfil:
             raise PermissionDenied
         
-        # define variaveis
         tipo = 'user'
-        grupos = perfil.grupos.all()
         menu = menu_edit_user(url)
 
     # grupo
     elif url.grupo:
         perfil = url.grupo
         
-        # confere se o user pode editar o grupo
         if request.user not in perfil.u0.all():
             raise PermissionDenied
 
-        # define variaveis
         tipo = 'grupo'
-        grupos = None
         menu = menu_edit_grupo(url)
 
     context = {
         'url': url,
         'perfil': perfil,
         'tipo': tipo,
-        'grupos': grupos,
+        'editor': True,
         'menu': menu,
         'ativo': ativo,
         'content': content,
+        'extra': 'edit',
     }
-    return render(request, 'index/edit/_home.html', context)
+    return render(request, 'index/base/_edit.html', context)
 
 
 #########################################################################################################################
@@ -281,12 +303,6 @@ def add_convite(request, url):
     novo = Convite.objects.create(nome=nome, u0=user)
 
     return redirect('index:convite', pk=novo.pk)
-
-    # context = {
-    #     'msg': f'redirecinando para a página do convite...',
-    #     'redirect': reverse('index:convite', kwargs={'pk': novo.pk}),
-    # }
-    # return render(request, 'index/base/msg_body.html', context)
 
 
 #########################################################################################################################
@@ -432,17 +448,15 @@ def grupo_visibilidade(request, url):
     grupo = get_object_or_404(Grupo, url__nome=url)
     template = request.POST.get('template')
     var = request.POST.get('var')
-    n = request.POST.get('n')
 
-    # confere se a url é diferente da id
-    if str(grupo.url) != str(grupo.id):
-        grupo.mudar_visibilidade()
+    grupo.mudar_visibilidade()
     
     context = {
         var: grupo,
         'url': grupo.url, 
         'tipo': 'grupo',
-        'n': n,
+        'n': request.POST.get('n'),
+        'extra': 'edit',
     }
     return render(request, template, context)
 
@@ -474,7 +488,6 @@ def check_nome(request, url):
 #########################################################################################################################
 
 #---------------------------------------------------------
-# perfil
 # edit projetos do perfil
 def edit_projetos(request, url):
     url = get_object_or_404(Url, nome=url)
@@ -489,22 +502,43 @@ def edit_projetos(request, url):
 # add projeto
 def add_projeto(request, url):
     user = request.user
-    perfil = get_object_or_404(Url, nome=url)
+    url= get_object_or_404(Url, nome=url)
 
     # grupos e pessoas podem criar projetos
-    # verifica user
-    if (perfil.user and user != perfil.user) or (perfil.grupo and user not in perfil.grupo.u0.all()):
+    if (url.user and user != url.user) or (url.grupo and user not in url.grupo.u0.all()):
         raise PermissionDenied
 
     nome = request.POST.get('novo-projeto')
-    novo = Projeto(nome=nome, perfil=perfil, u0=user)
+    novo = Projeto(nome=nome, perfil=url, u0=user)
     novo.save()
 
     context = {
         'msg': f'redirecionando para a página de edições do novo projeto <b>{ novo.nome }</b>',
-        'redirect': reverse('index:projeto-edit', kwargs={'url': perfil, 'purl': novo.url}),
+        'redirect': reverse('index:projeto-edit', kwargs={'url': url, 'purl': novo.url}),
     }
     return render(request, 'index/base/msg_body.html', context)
+
+# delete projeto
+@login_required
+@require_http_methods(['DELETE'])
+def delete_projeto(request, url, purl):
+    user = request.user
+    url = get_object_or_404(Url, nome=url)
+    projeto = get_object_or_404(Projeto, perfil=url, url=purl)
+        
+    if (url.user and user != url.user) or (url.grupo and user not in url.grupo.u0.all()):
+        raise PermissionDenied
+    
+    projeto.delete()
+    
+    if request.GET.get('redireciona'):
+        return redirect('index:edit-ativo', url=url, ativo='projetos')
+
+    context = {
+        'msg': f'projeto <b>{ projeto.nome }</b> deletado',
+        'class': 'legenda mt1',
+    }
+    return render(request, 'index/base/msg_clear.html', context)
 
 #---------------------------------------------------------
 # check projeto
@@ -525,43 +559,120 @@ def check_projeto(request, url):
     return render(request, 'index/add/projeto_results.html', context)
 
 #---------------------------------------------------------
-# perfil projeto
+# projeto
 #---------------------------------------------------------
 
-# projeto index
+# projeto home
 def projeto(request, url, purl):
-    editor = True
-    perfil = get_object_or_404(Url, nome=url)
-    projeto = get_object_or_404(Projeto, perfil=perfil, url=purl)
+    user = request.user
+    url = get_object_or_404(Url, nome=url)
+    projeto = get_object_or_404(Projeto, perfil=url, url=purl)
     tags = projeto.tags.all()
+    editor = True
     
-    if (perfil.user and request.user != perfil.user) or (perfil.grupo and request.user not in perfil.grupo.u0.all()):
-        if not projeto.publico: # verifica se o projeto é publico
+    if (url.user and user != url.user) or (url.grupo and user not in url.grupo.u0.all()):
+        if not projeto.publico:
             raise Http404("projeto privado")
-        tags = tags.exclude(publico=False) # mostra apenas as tags publicas 
         editor = False
+        tags = tags.exclude(publico=False)
 
     context = {
         'projeto': projeto,
-        'perfil': perfil,
+        'url': url,
+        'perfil': get_perfil(url),
         'tags': tags,
         'editor': editor,
+        'tipo': 'projeto',
     }
-    return render(request, 'index/projeto/_home.html', context)
+    return render(request, 'index/base/_home.html', context)
 
 # edit projeto
 @login_required
 def projeto_edit(request, url, purl, ativo='info'):
-    perfil = get_object_or_404(Url, nome=url)
-    projeto = get_object_or_404(Projeto, perfil=perfil, url=purl)
+    user = request.user
+    url = get_object_or_404(Url, nome=url)
+    if (url.user and user != url.user) or (url.grupo and user not in url.grupo.u0.all()):
+        raise PermissionDenied
+
+    projeto = get_object_or_404(Projeto, perfil=url, url=purl)
+    menu = menu_edit_projeto(url, purl)
+    content= reverse(f'index:projeto-edit-{ativo}', kwargs={'url': url, 'purl': purl})
 
     context = {
-        'perfil': perfil,
+        'url': url,
+        'perfil': get_perfil(url),
+        'projeto': projeto,
+        'ativo': ativo,
+        'menu': menu,
+        'content': content,
+        'tipo': 'projeto',
+        'extra': 'edit',
+    }
+    return render(request, 'index/base/_edit.html', context)
+
+# edit info
+def projeto_edit_info(request, url, purl):
+    url = get_object_or_404(Url, nome=url)
+    projeto = get_object_or_404(Projeto, perfil=url, url=purl)
+
+    context = {
+        'url': url,
         'projeto': projeto,
     }
-    return render(request, 'index/projeto/edit/_home.html', context)
+    return render(request, 'index/projeto/edit/info.html', context)
 
+# edit texto
+def projeto_edit_texto(request, url, purl):
+    url = get_object_or_404(Url, nome=url)
+    projeto = get_object_or_404(Projeto, perfil=url, url=purl)
 
+    context = {
+        'url': url,
+        'projeto': projeto,
+    }
+    return render(request, 'index/projeto/edit/texto.html', context)
+
+# edit imagens
+def projeto_edit_imagens(request, url, purl):
+    url = get_object_or_404(Url, nome=url)
+    projeto = get_object_or_404(Projeto, perfil=url, url=purl)
+
+    context = {
+        'url': url,
+        'projeto': projeto,
+    }
+    return render(request, 'index/projeto/edit/imagens.html', context)
+
+# edit equipe
+def projeto_edit_equipe(request, url, purl):
+    url = get_object_or_404(Url, nome=url)
+    projeto = get_object_or_404(Projeto, perfil=url, url=purl)
+
+    context = {
+        'url': url,
+        'projeto': projeto,
+    }
+    return render(request, 'index/projeto/edit/equipe.html', context)
+
+#---------------------------------------------------------
+# mudar visibilidade
+def projeto_visibilidade(request, url, purl):
+    url = get_object_or_404(Url, nome=url)
+    projeto = get_object_or_404(Projeto, perfil=url, url=purl)
+    template = request.POST.get('template')
+    var = request.POST.get('var')
+
+    projeto.mudar_visibilidade()
+    
+    context = {
+        var: projeto,
+        'url': url,
+        'tipo': 'projeto',
+        'perfil': get_perfil(url),
+        'n': request.POST.get('n'),
+        'extra': 'edit',
+    }
+    return render(request, template, context)
 
 #########################################################################################################################
 # trabalhos
@@ -722,6 +833,7 @@ def cadastro(request,  pk):
             user.email = convite.email
             user.nome = convite.nome
             user.u0 = convite.u0
+            user.pronome = convite.pronome
             user.save()
             convite.delete()
             login(request,user)

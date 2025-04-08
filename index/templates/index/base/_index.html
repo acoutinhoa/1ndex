@@ -1,0 +1,81 @@
+{% load index_tags %}
+
+<!-- titulo -->
+{% include 'index/base/index_titulo.html' %}
+
+<!-- edit -->
+{% if extra == 'edit' %}
+    <!-- visibilidade -->
+    {% if tipo == 'grupo' or tipo == 'projeto' %}
+    {% include 'index/base/index_visibilidade.html' %}
+    {% endif %}
+
+<!-- perfil -->
+{% else %}
+    <!-- links sistema -->
+    {% if editor %}
+        {% if tipo == 'projeto' %}
+        {% url 'index:projeto-edit' url=perfil purl=projeto.url as link %}
+        {% else %}
+        {% url 'index:edit' url=url as link %}
+        {% endif %}
+        
+        <a href="{{ link }}"><div class="link btn c2 fr">edit</div></a>
+    {% endif %}
+
+    <!-- info -->
+    {% if tipo %}
+    {% include 'index/base/index_info.html' %}
+    {% endif %}
+
+
+    <!-- pessoas -->
+    {% if pessoas %}
+    <div class="linha2"></div>
+    <div class="c1">
+        {% if tipo == 'user' %}fi1hos{% elif tipo == 'grupo' %}adms{% else %}pessoas{% endif %} [{{ pessoas.count }}]<br>
+    </div>
+
+    <div id="pessoas">
+        {% for p in pessoas %}
+        <a href="{{ p.get_absolute_url }}"><div class="link btn">{{ p.url }}</div></a>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+
+    <!-- grupos -->
+    {% if grupos %}
+    <div class="linha2"></div>
+    <div class="c1">
+        grupos [{{ grupos.count }}]<br>        
+    </div>
+
+    <div id="grupos">
+        {% for g in grupos %}
+        <a href="{{ g.get_absolute_url }}"><div class="link btn {% if not g.publico %}c2{% endif %}">{{ g.nome }}</div></a>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+
+    <!-- projetos -->
+    {% if projetos %}
+    <div class="linha2"></div>
+    <div class="c1">
+        projetos [{{ projetos.count }}]<br>
+    </div>
+
+    <div id="projetos">
+        {% for pro in projetos %}
+        <a href="{{ pro.get_absolute_url }}"><div class="link btn {% if not pro.publico %}c2{% endif %}">{{ pro }}</div></a>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+{% endif %}
+
+
+
+
+

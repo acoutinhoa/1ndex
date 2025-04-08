@@ -3,7 +3,35 @@ from . import views
 
 app_name = 'index'
 
+#########################################################################################################################
+# projeto
+#########################################################################################################################
+
+# projeto edit htmx
+projeto_edit_htmx_patterns = [
+    path('info/', views.projeto_edit_info, name='projeto-edit-info'),
+    path('texto/', views.projeto_edit_texto, name='projeto-edit-texto'),
+    path('imagens/', views.projeto_edit_imagens, name='projeto-edit-imagens'),
+    path('equipe/', views.projeto_edit_equipe, name='projeto-edit-equipe'),
+]
+
+# projetos
+projeto_patterns = [
+    path('', views.projeto, name='projeto'),
+    # edit
+    path('edit/', views.projeto_edit, name='projeto-edit'),
+    path('edit/<str:ativo>/', views.projeto_edit, name='projeto-edit-ativo'),
+    path('edit/htmx/', include(projeto_edit_htmx_patterns)),
+    # delete
+    path('delete/', views.delete_projeto,  name='delete-projeto'),
+    # htmx
+    path('visibilidade/', views.projeto_visibilidade, name='projeto-visibilidade'),
+]
+
+#########################################################################################################################
 # responsabilidade
+#########################################################################################################################
+
 responsa_patterns = [
     path('transferir/', views.responsa_transferir, name='edit-filhos-transferir'),
     path('aceitar/', views.responsa_aceitar, name='edit-filhos-aceitar'),
@@ -13,25 +41,9 @@ responsa_patterns = [
     path('search/', views.search_mae, name='search-mae'),
 ]
 
-# edit htmx
-edit_htmx_patterns = [
-    path('perfil/', views.edit_info, name='edit-perfil'),
-    path('url/', views.edit_url, name='edit-url'),
-    path('filhos/', views.edit_filhos, name='edit-filhos'),
-    path('filhos/<str:pk>/', include(responsa_patterns)),
-    path('adms/', views.edit_adms, name='edit-adms'),
-    path('grupos/', views.edit_grupos, name='edit-grupos'),
-    path('projetos/', views.edit_projetos, name='edit-projetos'),
-    path('trabalhos/', views.edit_trabalhos, name='edit-trabalhos'),
-]
-
-# edit
-edit_patterns = [
-    path('', views.edit, name='edit'),
-    path('<str:ativo>/', views.edit, name='edit-ativo'),
-    #htmx
-    path('htmx/', include(edit_htmx_patterns)),
-]
+#########################################################################################################################
+# add / delete
+#########################################################################################################################
 
 # add
 add_patterns = [
@@ -48,28 +60,30 @@ delete_patterns = [
     path('adm/<str:pk>/', views.delete_adm,  name='delete-adm'),
 ]
 
-# projeto edit
-projeto_edit_patterns = [
-    path('', views.projeto_edit, name='projeto-edit'),
-    path('<str:ativo>/', views.projeto_edit, name='projeto-edit-ativo'),
-    #htmx
-    path('htmx/', include(edit_htmx_patterns)),
-]
+#########################################################################################################################
+# perfil
+#########################################################################################################################
 
-# projetos
-projeto_patterns = [
-    path('', views.projeto, name='projeto'),
-    path('edit/', include(projeto_edit_patterns)),
-    # path('delete/', include(delete_patterns)),
-    # #htmx
-    # path('htmx/', include(edit_htmx_patterns)),
+# edit htmx
+edit_htmx_patterns = [
+    path('perfil/', views.edit_info, name='edit-perfil'),
+    path('url/', views.edit_url, name='edit-url'),
+    path('filhos/', views.edit_filhos, name='edit-filhos'),
+    path('filhos/<str:pk>/', include(responsa_patterns)),
+    path('adms/', views.edit_adms, name='edit-adms'),
+    path('grupos/', views.edit_grupos, name='edit-grupos'),
+    path('projetos/', views.edit_projetos, name='edit-projetos'),
+    path('trabalhos/', views.edit_trabalhos, name='edit-trabalhos'),
 ]
 
 # perfil
 perfil_patterns = [
     path('', views.index, name='perfil'),
-    # profile
-    path('edit/', include(edit_patterns)),
+    # edit
+    path('edit/', views.edit, name='edit'),
+    path('edit/<str:ativo>/', views.edit, name='edit-ativo'),
+    path('edit/htmx/', include(edit_htmx_patterns)),
+    # add / delete
     path('add/', include(add_patterns)),
     path('delete/', include(delete_patterns)),
     # htmx
@@ -79,7 +93,10 @@ perfil_patterns = [
     path('<str:purl>/', include(projeto_patterns)),
 ]
 
-# invite
+#########################################################################################################################
+# convite
+#########################################################################################################################
+
 invite_patterns = [
     path('', views.convite,  name='convite'),
     path('register/', views.cadastro,  name='cadastro'),
@@ -88,7 +105,10 @@ invite_patterns = [
     path('delete/', views.delete_convite,  name='delete-convite'),
 ]
 
+#########################################################################################################################
 # htmx
+#########################################################################################################################
+
 htmx_patterns = [
     path('clear/', views.clear, name='clear'),
     # check
@@ -99,7 +119,10 @@ htmx_patterns = [
     path('check/projeto/<str:url>/', views.check_projeto, name='check-projeto'),
 ]
 
-# geral
+#########################################################################################################################
+# urls
+#########################################################################################################################
+
 urlpatterns = [
     path('', views.index, name='index'),
     path('invite/<str:pk>/', include(invite_patterns)),

@@ -1,7 +1,8 @@
 from django import template
 from django.utils import timezone
+from random import randint, choice
+from django.utils.safestring import mark_safe
 # from django.urls import reverse, reverse_lazy
-# from random import randint, choice
 # from django.contrib.humanize.templatetags.humanize import intcomma
 
 # {% load index_tags %}
@@ -21,6 +22,17 @@ def full_url(context, relative_url):
   request = context['request']
   return request.build_absolute_uri(relative_url)
 
+@register.simple_tag
+def pronome(pronome, m='o', f='a', n='_'):
+	tipos = {
+		'ELA': f,
+		'ELE': m,
+		'NENHUM': n,
+	}
+	if pronome == 'QUALQUER_UM':
+		pronome = choice([ 'ELA', 'ELE' ])
+	artigo = tipos[pronome]
+	return mark_safe(f'<span class="pronome {'transparente' if artigo==n else ''}">{artigo}</span>')
 
 ###############################################################################
 # filters
