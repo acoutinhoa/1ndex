@@ -1,8 +1,7 @@
-{% extends 'index/convite/_base.html' %}
+{% extends 'index/base/_convite.html' %}
 {% load index_tags %}
 
 {% block content %}
-
 {% set convite.pronome as artigo %}
 
 {% if not request.user.is_authenticated %}
@@ -51,5 +50,4 @@
     {% endif %}
 
 {% endif %}
-
 {% endblock %}

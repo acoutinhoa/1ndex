@@ -1,13 +1,9 @@
 <!-- novo adm -->
-<h2 class='c2'>adicionar adm</h2>
-<div id="add-adm"  class="w80"> 
-    {% include 'index/add/adm.html' %}
-</div>
+{% url 'index:search-adm' url=url as link %}
+{% include 'index/add/novo.html' with tipo='adm' titulo="adicionar adm" ph='nome ou codinome' %}
 
 <!-- linha -->
 <div class="linha"></div>
 
 <!-- adms -->
-<div id="adms" class="w80 mt mb">
-    {% include 'index/edit/adms_lista.html' %}
-</div>
+{% include 'index/base/edit_lista.html' with tipo='adm' lista=adms %}

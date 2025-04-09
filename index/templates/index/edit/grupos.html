@@ -1,15 +1,11 @@
 <!-- novo -->
-<h2 class='c2'>novo grupo</h2>
-<div id='novo-grupo'>
-    {% include 'index/add/grupo.html' %}
-</div>
+{% url 'index:check-nome' url=url as link %}
+{% include 'index/add/novo.html' with tipo='grupo' %}
 
 {% if grupos %}
 <!-- linha -->
 <div class="linha"></div>
 
 <!-- grupos -->
-<div id="grupos" class="w80 mt mb">
-{% include 'index/edit/grupos_lista.html' %}
-</div>
+{% include 'index/base/edit_lista.html' with tipo='grupo' lista=grupos %}
 {% endif %}

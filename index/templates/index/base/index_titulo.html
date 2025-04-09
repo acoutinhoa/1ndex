@@ -1,3 +1,9 @@
+{% load index_tags %}
+
+{% if tipo == 'user' or tipo == 'grupo' %}
+{% set item as perfil %}
+{% endif %}
+
 <div class="h1">
     <a class='link2' href="{% url 'index:index' %}">1ndex/</a><br>
 
@@ -5,8 +11,8 @@
     <a class="link2 {% if url.grupo and not perfil.publico %}c2{% endif %}" href="{{ perfil.get_absolute_url }}">{{ url }}/</a><br>
     {% endif %}
 
-    {% if projeto %}
-    <a class="link2 {% if not projeto.publico %}c2{% endif %}" href="{{ projeto.get_absolute_url }}">{{ projeto.url }}/</a><br>
+    {% if tipo == 'projeto' %}
+    <a class="link2 {% if not item.publico %}c2{% endif %}" href="{{ item.get_absolute_url }}">{{ item.url }}/</a><br>
     {% endif %}
 
     {% if extra %}

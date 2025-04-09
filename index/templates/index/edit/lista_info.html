@@ -1,0 +1,56 @@
+{% extends 'index/base/edit_info.html' %}
+{% load index_tags %}
+
+
+{% block links %}
+
+{% if tipo == 'grupo' %}
+    {% url 'index:edit' url=item.url as link_edit %}
+    {% url 'index:grupo-visibilidade' url=item.url as link_visibilidade %}
+    {% url 'index:delete-grupo' url=item.url as link_delete %}
+{% else %}
+    {% url 'index:projeto-edit' url=url purl=item.url as link_edit %}
+    {% url 'index:projeto-visibilidade' url=url purl=item.url as link_visibilidade %}
+    {% url 'index:delete-projeto' url=url purl=item.url as link_delete %}
+{% endif %}
+
+<a href="{{ link_edit }}"><div class="link btn ml">editar</div></a>
+
+<input type="hidden" name="n" value="{{ n }}" id="n-{{ n }}" />
+<div 
+    class="link btn ml {% if item.publico %}c2{% endif %}" 
+    hx-post="{{ link_visibilidade }}"
+    hx-target="#{{ id|default:'item' }}-{{ n }}"
+    hx-include="[name='template'],#n-{{ n }}" >
+    {% if item.publico %}privatizar{% else %}publicar{% endif %}
+</div>
+
+<div 
+    class="link btn c2 ml" 
+    hx-delete="{{ link_delete }}"
+    hx-confirm="tem certeza que deseja deletar {{ tipo }} '{{ item.nome }}'? - após esta ação nenhum dado do grupo pode ser recuperado"
+    hx-swap="outerHTML"
+    hx-target="#{{ id|default:'item' }}-{{ n }}" >
+    deletar
+</div>
+{% endblock %}
+
+
+{% block titulo %}
+<a class="link {% if not item.publico %}c2{% endif %}" href="{{ item.get_absolute_url }}">{{ item.nome }}</a>
+{% endblock %}
+
+
+{% block info %}
+{% if not item.publico %}<span class="legenda c2">{{ tipo }} privado</span><br>{% endif %}
+<span class="c1">{% if tipo == 'grupo' %}codinome{% else %}url{% endif %}</span> {{ item.url }}<br>
+<span class="c1">{{ tipo }} criado em</span> {{ item.d0|date:"d/m/y" }} às {{ item.d0|date:"H:i" }}<br>
+<span class="c1">ultima edição em</span> {{ item.d1|date:"d/m/y" }} às {{ item.d1|date:"H:i" }}<br>
+
+{% if tipo == 'grupo' %}
+<span class="c1">adms</span>
+    {% for adm in item.u0.all %}
+    <a class="link {% if not adm.is_active %}c2{% endif %}" href="{{ adm.get_absolute_url }}">{{ adm }}</a>{% if not forloop.last %} + {% endif %}
+    {% endfor %}<br>
+{% endif %}
+{% endblock %}

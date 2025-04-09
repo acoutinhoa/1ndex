@@ -1,0 +1,26 @@
+{% extends 'index/base/edit_info.html' %}
+{% load index_tags %}
+
+{% block links %}
+<a href="{{ item.get_absolute_url }}" target="blank"><div class="link btn ml">visualizar</div></a>
+
+<div 
+    class="link btn c2 ml" 
+    hx-delete="{% url 'index:delete-convite' pk=item.id %}"
+    hx-confirm="tem certeza que deseja deletar o convite '{{ item.nome }}'?"
+    hx-target="#{{ id|default:'item' }}-{{ n }}" >
+    deletar
+</div>
+{% endblock %}
+
+
+{% block titulo %}
+<a class="link" href="{{ item.get_absolute_url }}">{{ item.nome }}</a>
+{% endblock %}
+
+
+{% block info %}
+<span class="c1">email</span> {{ item.email|default:'-' }}<br>
+<span class="c1">convite criado em</span> {{ item.d0|date:"d/m/y" }} às {{ item.d0|date:"H:i" }}<br>
+<span class="c1">link</span> {% full_url item.get_absolute_url %}<br>
+{% endblock %}

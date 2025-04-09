@@ -23,7 +23,8 @@ def full_url(context, relative_url):
   return request.build_absolute_uri(relative_url)
 
 @register.simple_tag
-def pronome(pronome, m='o', f='a', n='_'):
+def pronome(pronome, m='o', f='a', n='ㅤ'):
+	''' espaco medio = "ㅤ" / espaco grande = "ㅤㅤ" '''
 	tipos = {
 		'ELA': f,
 		'ELE': m,
@@ -32,7 +33,8 @@ def pronome(pronome, m='o', f='a', n='_'):
 	if pronome == 'QUALQUER_UM':
 		pronome = choice([ 'ELA', 'ELE' ])
 	artigo = tipos[pronome]
-	return mark_safe(f'<span class="pronome {'transparente' if artigo==n else ''}">{artigo}</span>')
+	return mark_safe(f'<span class="pronome">{artigo}</span>')
+	# return mark_safe(f'<span class="pronome {'transparente' if artigo==n else ''}">{artigo}</span>')
 
 ###############################################################################
 # filters

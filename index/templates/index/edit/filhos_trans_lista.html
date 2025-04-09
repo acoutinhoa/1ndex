@@ -1,9 +1,0 @@
-<h2 class="c2">transferências [{{ trans.count|default:'0' }}]</h2>
-
-<ol>
-    {% for u in trans %}
-    <div class='mt1' id='trans-{{ forloop.counter }}'>
-    {% include 'index/edit/filhos_trans_info.html' %}
-    </div>
-    {% endfor %}
-</ol>

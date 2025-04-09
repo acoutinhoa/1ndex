@@ -1,33 +1,26 @@
 {% if trans %}
 <!-- transferencias -->
-<div id="trans" class="w80 mb">
-    {% include 'index/edit/filhos_trans_lista.html' %}
-</div>
+{% include 'index/base/edit_lista.html' with tipo='transferência' lista=trans id='trans' %}
+
 <div class="linha"></div>
 {% endif %}
 
 <!-- novo -->
-<h2 class='c2'>novo convite</h2>
-<div id='novo-convite'>
-    {% include 'index/add/convite.html' %}
-</div>
+{% url 'index:check-nome' url=url as link %}
+{% include 'index/add/novo.html' with tipo='convite' %}
 <div class="c2 mt">você será responsável pelas pessoas que convidar<br></div>
 
 
 {% if convites %}
 <div class="linha"></div>
 <!-- convites -->
-<div id="convites" class="w80 mt mb">
-    {% include 'index/edit/convites_lista.html' %}
-</div>
+{% include 'index/base/edit_lista.html' with tipo='convite' lista=convites id='c' %}
 {% endif %}
 
 
 {% if filhos %}
 <div class="linha"></div>
 <!-- filhos -->
-<div id="filhos" class="w80 mt mb">
-{% include 'index/edit/filhos_lista.html' %}
-</div>
+{% include 'index/base/edit_lista.html' with tipo='filho' lista=filhos %}
 {% endif %}  
     

@@ -1,0 +1,72 @@
+{% extends 'index/base/edit_info.html' %}
+{% load index_tags %}
+
+
+{% block links %}
+{% if tipo == 'adm' and lista.count > 1 %}
+<div 
+    class="link btn c2 ml" 
+    hx-delete="{% url 'index:delete-adm' pk=item.id url=url %}"
+    hx-confirm="tem certeza que quer remover '{{ u }}' da lista de adms do grupo '{{ url.grupo.nome }}'?"
+    hx-swap="outerHTML"
+    hx-target="#{{ id|default:'item' }}-{{ n }}" >
+    remover
+</div>
+
+{% elif tipo == 'transferência' %}
+<!-- aceitar -->
+<div 
+    class="link btn ml" 
+    hx-post="{% url 'index:edit-filhos-aceitar' pk=item.id url=url %}"
+    hx-confirm="você aceita ser o novo responsável pela conta de '{{ u }}'?"
+    hx-target='#{{ id|default:'item' }}-{{ n }}' >
+    aceitar
+</div>
+<!-- recusar -->
+<div 
+    class="link btn c2 ml" 
+    hx-post="{% url 'index:edit-filhos-recusar' pk=item.id url=url %}"
+    hx-confirm="tem certeza que deseja recusar a responsabilidade da conta de '{{ u }}'? ----- ao continuar, nada será deletado, mas a conta será inativada. ----- o user poderá recuperar o acesso com um novo convite."
+    hx-target='#{{ id|default:'item' }}-{{ n }}' >
+    recusar
+</div>
+
+{% elif tipo == 'filho' %}
+<!-- transferir -->
+<div 
+    class="link btn c2 ml" 
+    hx-get="{% url 'index:edit-filhos-transferir' pk=item.id url=url %}"
+    hx-target='#content' >
+    transferir
+</div>
+<!-- desativar -->
+<div 
+    class="link btn c2 ml" 
+    hx-delete="{% url 'index:edit-filhos-inativar' pk=item.id url=url %}"
+    hx-confirm="tem certeza que deseja inativar a conta de '{{ item }}'? ------ ao continuar, nada será deletado, mas '{{ item }}' perderá acesso à a sua conta ------ o acesso poderá ser recuperarado com um novo convite. ------ NÃO CONTINUE SEM ANTES SE COMUNICAR COM '{{ item }}'. ------ PROSSIGA COM RESPEITO E RESPONSABILIDADE."
+    hx-target='#{{ id|default:'item' }}-{{ n }}' >
+    inativar
+</div>
+
+{% endif %}
+{% endblock %}
+    
+
+{% block titulo %}
+<a class="link {% if not item.is_active %}c2{% endif %}" href="{{ item.get_absolute_url }}">{{ item.url }}</a>
+{% endblock %}
+
+
+{% block info %}
+{% if not item.is_active %}<span class="legenda c2">conta inativa</span><br>{% endif %}
+<span class="c1">nome</span> {{ item.nome|default:"-" }}<br>
+<span class="c1">conta criada em</span> {{ item.d0|date:"d/m/y" }} às {{ item.d0|date:"H:i" }}<br>
+<span class="c1">ultima edição em</span> {{ item.d1|date:"d/m/y" }} às {{ item.d1|date:"H:i" }}<br>
+{# <span class="c1">ultimo login em</span> {{ item.last_login|date:"d/m/y" }} às {{ item.last_login|date:"H:i" }}<br> #}
+<span class="c1">grupos públicos</span>
+    {% for g in item.grupos_publicos %}
+    <a class="link" href="{{ g.get_absolute_url }}"> {{ g.nome }}</a>{% if not forloop.last %} + {% endif %}
+    {% empty %}
+    -
+    {% endfor %}<br>
+{% endblock %}

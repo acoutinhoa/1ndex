@@ -1,15 +1,10 @@
 <!-- novo -->
-<h2 class='c2'>novo projeto</h2>
-<div id='novo-projeto'>
-    {% include 'index/add/projeto.html' %}
-</div>
+{% url 'index:check-projeto' url=url as link %}
+{% include 'index/add/novo.html' with tipo='projeto' %}
 
 {% if projetos %}
 <!-- linha -->
 <div class="linha"></div>
-
 <!-- projetos -->
-<div id="projetos" class="w80 mt mb">
-{% include 'index/edit/projetos_lista.html' %}
-</div>
+{% include 'index/base/edit_lista.html' with tipo='projeto' lista=projetos %}
 {% endif %}

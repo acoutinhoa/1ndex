@@ -1,0 +1,22 @@
+{% load index_tags %}
+
+{% if tipo == 'grupo' or tipo == 'projeto' %}
+    {% set 'index/edit/lista_info.html' as template %}
+{% elif tipo == 'convite' %}
+    {% set 'index/edit/lista_convite.html' as template %}
+{% else %}
+    {% set 'index/edit/lista_user.html' as template %}
+{% endif %}
+
+<div id="{{ tipo }}s" class="w80">
+    <h2>{{ tipo }}s [{{ lista.count|default:'0' }}]</h2>
+    <input type="hidden" name="template" value="{{ template }}" />
+
+    <ol>
+        {% for item in lista %}
+        <div class='mt1' id='{{ id|default:'item' }}-{{ forloop.counter }}'>
+            {% include template with n=forloop.counter %}
+        </div>
+        {% endfor %}
+    </ol>
+</div>

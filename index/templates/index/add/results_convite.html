@@ -1,13 +1,4 @@
 {% if results == 'yes' %}
-{% comment %} <div 
-    id="submit"
-    class="btn link c2 ml"
-    hx-swap-oob="true"
-    hx-post="{% url 'index:add-convite' url=url %}"
-    hx-include="[name='novo-convite']"
-    hx-target="#novo-convite">
-    convidar
-</div> {% endcomment %}
 <div 
     id="submit"
     class="btn link c2 ml"
@@ -20,7 +11,7 @@
 </div>
 
 {% else %}
-digite 2 ou mais caracteres
+<p class="c2">digite 2 ou mais caracteres</p>
 <div id="submit" hx-swap-oob="true"></div>
 
 {% endif %}

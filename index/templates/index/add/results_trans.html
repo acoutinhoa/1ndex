@@ -5,7 +5,7 @@
     <div 
         class="link btn fl"
         hx-post="{% url 'index:edit-filhos-transferir' pk=filho.pk url=url %}"
-        hx-target="#nova-mae"
+        hx-target="#novo-mae"
         hx-confirm="você realmente deseja transferir '{{ filho }}' para a responsabilidade de '{{ u }}'?"
         hx-include="#mae-{{ forloop.counter }}">
         {{ u }}

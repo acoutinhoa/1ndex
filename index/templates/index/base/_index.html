@@ -15,7 +15,7 @@
     <!-- links sistema -->
     {% if editor %}
         {% if tipo == 'projeto' %}
-        {% url 'index:projeto-edit' url=perfil purl=projeto.url as link %}
+        {% url 'index:projeto-edit' url=url purl=item.url as link %}
         {% else %}
         {% url 'index:edit' url=url as link %}
         {% endif %}

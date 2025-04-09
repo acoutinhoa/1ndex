@@ -117,7 +117,7 @@ def index(request, url=None):
     
     context = {
         'url': url,
-        'perfil': perfil,
+        'item': perfil,
         'tipo': tipo,
         'editor': editor,
         'pessoas': pessoas,
@@ -154,9 +154,8 @@ def edit(request, url, ativo='perfil'):
 
     context = {
         'url': url,
-        'perfil': perfil,
+        'item': perfil,
         'tipo': tipo,
-        'editor': True,
         'menu': menu,
         'ativo': ativo,
         'content': content,
@@ -211,7 +210,7 @@ def edit_info(request, url):
 # edit url
 def edit_url(request, url):
     url = get_object_or_404(Url, nome=url)
-    nova_url = request.POST.get('nova-url')
+    nova_url = request.POST.get('novo-url')
 
     # verifica user
     if not ( request.user == url.user or request.user in url.grupo.u0.all() ):
@@ -229,19 +228,20 @@ def edit_url(request, url):
     context = {
         'msg': 'redirecionando para a nova url...',
         'redirect': reverse('index:edit', kwargs={'url': url}),
+        'tipo': 'body',
     }
-    return render(request, 'index/base/msg_body.html', context)
+    return render(request, 'index/base/msg.html', context)
 
 #---------------------------------------------------------
 # check url
 def check_codinome(request, url=None):
     results = None
     if url:
-        codinome = request.POST.get('nova-url')
-        template = 'index/edit/url_results.html'    
+        codinome = request.POST.get('novo-url')
+        template = 'index/add/results_url.html'    
     else:
         codinome = request.POST.get('username')
-        template = 'index/convite/codinome_results.html'
+        template = 'index/convite/results_codinome.html'
 
     def car_proibido(nome):
         caracteres = digits + ascii_letters + '_@+.-'
@@ -364,14 +364,15 @@ def delete_adm(request, url, pk):
     context = {
         'msg': f'adm <b>{ adm }</b> removido do grupo <b>{ grupo.nome }</b>',
         'class': 'legenda mt1',
+        'tipo': 'clear',
     }
-    return render(request, 'index/base/msg_clear.html', context)
+    return render(request, 'index/base/msg.html', context)
 
 #---------------------------------------------------------
 # search adm
 def search_adm(request, url):
     grupo = Grupo.objects.get(url__nome=url)
-    busca = request.POST.get('search')
+    busca = request.POST.get('novo-adm')
     results = User.objects.filter(nome__icontains=busca) | User.objects.filter(username__icontains=busca)
     results = results.exclude(grupos=grupo).exclude(is_active=False)
     
@@ -380,7 +381,7 @@ def search_adm(request, url):
         'busca': busca,
         'url': grupo.url,
     }
-    return render(request, 'index/add/adm_results.html', context)
+    return render(request, 'index/add/results_adm.html', context)
 
 
 #########################################################################################################################
@@ -417,8 +418,9 @@ def add_grupo(request, url):
     context = {
         'msg': f'redirecionando para a página de edições do novo grupo <b>{ novo.nome }</b>',
         'redirect': reverse('index:edit', kwargs={'url': novo.url}),
+        'tipo': 'body',
     }
-    return render(request, 'index/base/msg_body.html', context)
+    return render(request, 'index/base/msg.html', context)
 
 # delete grupo
 @login_required
@@ -439,22 +441,24 @@ def delete_grupo(request, url):
     context = {
         'msg': f'grupo <b>{ grupo.nome }</b> deletado',
         'class': 'legenda mt1',
+        'tipo': 'clear',
     }
-    return render(request, 'index/base/msg_clear.html', context)
+    return render(request, 'index/base/msg.html', context)
 
 #---------------------------------------------------------
 # mudar visibilidade
 def grupo_visibilidade(request, url):
     grupo = get_object_or_404(Grupo, url__nome=url)
     template = request.POST.get('template')
-    var = request.POST.get('var')
+    # var = request.POST.get('var')
 
     grupo.mudar_visibilidade()
     
     context = {
-        var: grupo,
+        'item': grupo,
         'url': grupo.url, 
         'tipo': 'grupo',
+
         'n': request.POST.get('n'),
         'extra': 'edit',
     }
@@ -465,11 +469,11 @@ def grupo_visibilidade(request, url):
 def check_nome(request, url):
     if request.POST.get('novo-grupo'):
         nome = request.POST.get('novo-grupo')
-        template = 'index/add/grupo_results.html'
+        template = 'index/add/results_grupo.html'
     
     elif request.POST.get('novo-convite'):
         nome = request.POST.get('novo-convite')
-        template = 'index/add/convite_results.html'
+        template = 'index/add/results_convite.html'
 
     if len(nome.replace(" ", "")) >= 2:
         results = 'yes'
@@ -515,8 +519,9 @@ def add_projeto(request, url):
     context = {
         'msg': f'redirecionando para a página de edições do novo projeto <b>{ novo.nome }</b>',
         'redirect': reverse('index:projeto-edit', kwargs={'url': url, 'purl': novo.url}),
+        'tipo': 'body',
     }
-    return render(request, 'index/base/msg_body.html', context)
+    return render(request, 'index/base/msg.html', context)
 
 # delete projeto
 @login_required
@@ -537,8 +542,9 @@ def delete_projeto(request, url, purl):
     context = {
         'msg': f'projeto <b>{ projeto.nome }</b> deletado',
         'class': 'legenda mt1',
+        'tipo': 'clear',
     }
-    return render(request, 'index/base/msg_clear.html', context)
+    return render(request, 'index/base/msg.html', context)
 
 #---------------------------------------------------------
 # check projeto
@@ -556,7 +562,7 @@ def check_projeto(request, url):
         'url': url,
         'results': results,
     }
-    return render(request, 'index/add/projeto_results.html', context)
+    return render(request, 'index/add/results_projeto.html', context)
 
 #---------------------------------------------------------
 # projeto
@@ -577,7 +583,7 @@ def projeto(request, url, purl):
         tags = tags.exclude(publico=False)
 
     context = {
-        'projeto': projeto,
+        'item': projeto,
         'url': url,
         'perfil': get_perfil(url),
         'tags': tags,
@@ -596,12 +602,12 @@ def projeto_edit(request, url, purl, ativo='info'):
 
     projeto = get_object_or_404(Projeto, perfil=url, url=purl)
     menu = menu_edit_projeto(url, purl)
-    content= reverse(f'index:projeto-edit-{ativo}', kwargs={'url': url, 'purl': purl})
+    content = reverse(f'index:projeto-edit-{ativo}', kwargs={'url': url, 'purl': purl})
 
     context = {
         'url': url,
         'perfil': get_perfil(url),
-        'projeto': projeto,
+        'item': projeto,
         'ativo': ativo,
         'menu': menu,
         'content': content,
@@ -660,14 +666,13 @@ def projeto_visibilidade(request, url, purl):
     url = get_object_or_404(Url, nome=url)
     projeto = get_object_or_404(Projeto, perfil=url, url=purl)
     template = request.POST.get('template')
-    var = request.POST.get('var')
 
     projeto.mudar_visibilidade()
     
     context = {
-        var: projeto,
-        'url': url,
         'tipo': 'projeto',
+        'item': projeto,
+        'url': url,
         'perfil': get_perfil(url),
         'n': request.POST.get('n'),
         'extra': 'edit',
@@ -785,7 +790,7 @@ def search_mae(request, url, pk):
         return results
     
     filho = User.objects.get(id=pk)
-    busca = request.POST.get('search')
+    busca = request.POST.get('novo-mae')
     results = User.objects.filter(nome__icontains=busca) | User.objects.filter(username__icontains=busca)
     results = results.exclude(is_active=False).exclude(url__nome=url) # exclui a mae e users inativos
     results = exclui_descendentes(results, filho)
@@ -796,7 +801,7 @@ def search_mae(request, url, pk):
         'url': url,
         'filho': filho,
     }
-    return render(request, 'index/edit/filhos_trans_results.html', context)
+    return render(request, 'index/add/results_trans.html', context)
 
 
 #########################################################################################################################
@@ -860,8 +865,9 @@ def trans_convite(request,  pk):
         'msg': f'conta de <b>{ user }</b> transferida para a responsabilidade de <b>{ convite.u0 }</b>',
         'redirect': reverse('index:edit', kwargs={'url': user.url}),
         'class': 'legenda mt mb1',
+        'tipo': 'body',
     }
-    return render(request, 'index/base/msg_body.html', context)
+    return render(request, 'index/base/msg.html', context)
 
 @login_required
 @require_http_methods(['DELETE'])
@@ -929,7 +935,7 @@ def check_email(request, pk):
         'perfil': perfil,
         'convite': convite,
     }
-    return render(request, 'index/convite/email_results.html', context)
+    return render(request, 'index/convite/results_email.html', context)
 
 
 #########################################################################################################################

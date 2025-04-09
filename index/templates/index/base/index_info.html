@@ -1,23 +1,18 @@
 {% load index_tags %}
 
-{% if tipo == 'projeto' %}
-    {% set projeto as item %}
-{% else %}
-    {% set perfil as item %}
-{% endif %}
-
 <div class="mt3">
     {% if item.nome %}<h2 class="c0">{{ item.nome }}</h2>{% endif %}
 
     <!-- info sistema -->
     <div class="c1 legenda txtr mt2">
         {% if tipo == 'projeto' %}
-            editado: {{ projeto.d1|timesince }}<br>
+            editado: {{ item.d1|timesince }}<br>
             perfil: <a class='link' href="{{ perfil.get_absolute_url }}">{{ perfil }}</a><br>
+        
         {% else %}
-            1dade: {{ perfil.d0|timesince }}<br>
-            {% if tipo == 'user' and perfil.u0 %}
-            m4e: <a class='link' href="{{ perfil.u0.get_absolute_url }}">{{ perfil.u0 }}</a><br>
+            1dade: {{ item.d0|timesince }}<br>
+            {% if tipo == 'user' and item.u0 %}
+            m4e: <a class='link' href="{{ item.u0.get_absolute_url }}">{{ item.u0 }}</a><br>
             {% comment %} {% elif tipo == 'grupo' %}
             4dms: {% for p in pessoas %}<a class="link" href="{{ p.get_absolute_url }}">{{ p }}</a>{% if not forloop.last %} + {% endif %}{% endfor %}<br> {% endcomment %}
             {% endif %}
