@@ -9,7 +9,9 @@ app_name = 'index'
 
 # projeto edit htmx
 projeto_edit_htmx_patterns = [
-    path('info/', views.projeto_edit_info, name='projeto-edit-info'),
+    path('perfil/', views.projeto_edit_info, name='projeto-edit-perfil'),
+    path('links/', views.projeto_edit_links, name='projeto-edit-links'),
+    path('tags/', views.projeto_edit_tags, name='projeto-edit-tags'),
     path('texto/', views.projeto_edit_texto, name='projeto-edit-texto'),
     path('imagens/', views.projeto_edit_imagens, name='projeto-edit-imagens'),
     path('equipe/', views.projeto_edit_equipe, name='projeto-edit-equipe'),
@@ -68,6 +70,7 @@ delete_patterns = [
 edit_htmx_patterns = [
     path('perfil/', views.edit_info, name='edit-perfil'),
     path('url/', views.edit_url, name='edit-url'),
+    path('links/', views.edit_links, name='edit-links'),
     path('filhos/', views.edit_filhos, name='edit-filhos'),
     path('filhos/<str:pk>/', include(responsa_patterns)),
     path('adms/', views.edit_adms, name='edit-adms'),
@@ -111,6 +114,8 @@ invite_patterns = [
 
 htmx_patterns = [
     path('clear/', views.clear, name='clear'),
+    # delete
+    path('link/delete/<str:pk>/', views.delete_link, name='delete-link'),
     # check
     path('check/codinome/', views.check_codinome, name='check-codinome'),
     path('check/codinome/<str:url>/', views.check_codinome, name='check-url'),

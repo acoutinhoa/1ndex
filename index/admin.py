@@ -8,4 +8,5 @@ admin.site.register(Url)
 admin.site.register(Convite)
 admin.site.register(Projeto)
 admin.site.register(Tag)
+admin.site.register(Link)
 

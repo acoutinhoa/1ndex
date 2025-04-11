@@ -10,6 +10,13 @@ from datetime import datetime
 
 Pronome = models.TextChoices("Pronome", "ELA ELE NENHUM QUALQUER_UM")
 
+class Link(models.Model):
+    nome = models.CharField(max_length=39)
+    url = models.URLField()
+
+    def __str__(self):
+        return str(self.nome)
+
 class User(AbstractUser):
     # edita fields do djando
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -23,6 +30,7 @@ class User(AbstractUser):
     nome = models.CharField(max_length=119, blank=True, null=True)
     info = models.CharField(max_length=912, blank=True, null=True, verbose_name='bio')
     pronome = models.CharField(choices=Pronome, max_length=13, default='NENHUM')
+    links = models.ManyToManyField(Link)
 
     def grupos_publicos(self):
         return self.grupos.filter(publico=True)
@@ -66,12 +74,18 @@ class Grupo(Base):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     u0 = models.ManyToManyField(User, related_name='grupos') # adicionar o user aos u0 quando o grupo for criada
     publico = models.BooleanField(default=False, verbose_name='grupo público')
+    links = models.ManyToManyField(Link)
 
-    def define_url(self, n=0):
+    def define_url(self, n=0, m=0):
         slug = slugify(self.nome)
         while Url.objects.filter(nome=slug).exists():
             n += 1
-            slug = f"{slug.split('-')[0]}-{n}"
+            if m:
+                m = len(str(n))+1
+                slug = f"{slug[:-m]}-{n}"
+            else:
+                slug = f"{slug}-{n}"
+                m = 1
         return slug
 
     def mudar_visibilidade(self):
@@ -145,16 +159,22 @@ class Projeto(Base):
     url = models.SlugField(max_length=119)
     Etapa = models.IntegerChoices("Etapa", "RASCUNHO DESENVOLVIMENTO FINALIZADO")
     etapa = models.IntegerField(choices=Etapa, default=3)
+    links = models.ManyToManyField(Link)
     # imagem = models.ImageField(upload_to=projeto_imagepath, max_length=100, blank=True, null=True,)
     # -equipe [m2m] [user] > [trabalho] (X criador) ‘projetos’
     # -ordem [] ()
     # -tempo total [gen] (X)
 
-    def define_url(self, n=0):
+    def define_url(self, n=0, m=0):
         slug = slugify(self.nome)
-        while Projeto.objects.filter(perfil=self.perfil, nome=slug).exists():
+        while Projeto.objects.filter(perfil=self.perfil, url=slug).exists():
             n += 1
-            slug = f"{slug.split('-')[0]}-{n}"
+            if m:
+                m = len(str(n))+1
+                slug = f"{slug[:-m]}-{n}"
+            else:
+                slug = f"{slug}-{n}"
+                m = 1
         return slug
 
     def mudar_visibilidade(self):

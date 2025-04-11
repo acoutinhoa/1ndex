@@ -1,6 +1,6 @@
 <!-- novo -->
-{% url 'index:check-projeto' url=url as link %}
-{% include 'index/add/novo.html' with tipo='projeto' %}
+{% url 'index:check-projeto' url=url as post %}
+{% include 'index/add/novo.html' with tipo='projeto' post=post %}
 
 {% if projetos %}
 <!-- linha -->

@@ -1,36 +1,32 @@
-<div x-data="{tab: '{{ ativo }}'}" id='menu' class='row h2 mt'>
-    {% for item,link in menu %}
+<div x-data="{tab: '{{ ativo }}'}" id='menu' class='row wrap h2 mt'>
+    {% for tab,link in menu %}
     
-    {% if item == 'deletar' %}
+    {% if tab == 'deletar' %}
     <input type="hidden" name="redireciona" value="true" />
     <div 
         class="link2 mr c2"
         hx-delete="{{ link }}"
-        {% if tipo == 'projeto' %}
-            hx-confirm="tem certeza que deseja deletar o projeto '{{ projeto.nome }}'? - após esta ação nenhum dado do projeto pode ser recuperado"
-        {% else %}
-            hx-confirm="tem certeza que deseja deletar {{ tipo }} '{{ perfil.nome }}'? - após esta ação nenhum dado do {{ tipo }} pode ser recuperado"
-        {% endif %}
+        hx-confirm="tem certeza que deseja deletar {{ tipo }} '{{ item.nome }}'? - após esta ação nenhum dado do {{ tipo }} pode ser recuperado"
         hx-include="[name='redireciona']"
         hx-push-url="true"
         hx-target="#body" >
-        {{ item }}/
+        {{ tab }}/
     </div>
 
     {% else %}
     <div 
         {% comment %} class="mr {% if ativo == item %}ativo{% else %}link2{% endif %}" {% endcomment %}
         class="mr"
-        :class="tab == '{{ item }}' ? 'ativo' : 'link2'"
-        @click.prevent="tab = '{{ item }}'"
+        :class="tab == '{{ tab }}' ? 'ativo' : 'link2'"
+        @click.prevent="tab = '{{ tab }}'"
         hx-get="{{ link }}"
         {% if tipo == 'projeto' %}
-            hx-push-url="/{{ perfil }}/{{ projeto.url }}/edit/{{ item }}/"
+            hx-push-url="/{{ perfil }}/{{ item.url }}/edit/{{ tab }}/"
         {% else %}
-            hx-push-url="/{{ url }}/edit/{{ item }}/"
+            hx-push-url="/{{ url }}/edit/{{ tab }}/"
         {% endif %}
         hx-target="#content" >
-        {{ item }}/
+        {{ tab }}/
     </div>
     {% endif %}
     

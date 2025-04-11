@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
 from django.core.exceptions import PermissionDenied
 from django.urls import reverse, reverse_lazy
-from string import ascii_letters, digits
+from string import ascii_letters, digits, ascii_lowercase
 from django.conf import settings
 from django.utils.text import slugify
 
@@ -42,7 +42,8 @@ def menu_edit_grupo(url):
 # menu projeto edit
 def menu_edit_projeto(url, purl):
     menu = [
-        ['info',reverse_lazy('index:projeto-edit-info', kwargs={'url': url, 'purl': purl})],
+        ['perfil',reverse_lazy('index:projeto-edit-perfil', kwargs={'url': url, 'purl': purl})],
+        ['tags',reverse_lazy('index:projeto-edit-tags', kwargs={'url': url, 'purl': purl})],
         ['texto',reverse_lazy('index:projeto-edit-texto', kwargs={'url': url, 'purl': purl})],
         ['imagens',reverse_lazy('index:projeto-edit-imagens', kwargs={'url': url, 'purl': purl})],
         ['equipe',reverse_lazy('index:projeto-edit-equipe', kwargs={'url': url, 'purl': purl})],
@@ -55,11 +56,16 @@ def menu_edit_projeto(url, purl):
 # home
 #########################################################################################################################
 
-def get_perfil(url):
+def get_perfil(url, get_tipo=False):
     if url.user:
         perfil = url.user
+        tipo = 'user'
     elif url.grupo:
         perfil = url.grupo
+        tipo = 'grupo'
+
+    if get_tipo:
+        return perfil, tipo
     return perfil
 
 #----------------------------------------------------------
@@ -71,46 +77,37 @@ def index(request, url=None):
     
     if url:
         url = get_object_or_404(Url, nome=url)
+        perfil, tipo = get_perfil(url, get_tipo=True)
         
-        if url.user:
-            tipo = 'user'
-            perfil = url.user
-            
+        if tipo == 'user':
             if not perfil.is_active:
                 raise Http404("conta desativada")
-            
-            pessoas = perfil.filhos.all()
-            grupos = perfil.grupos.all()
-            projetos = perfil.url.projetos.all()
-            
             if user == perfil:
                 editor = True
-            else:
-                pessoas = pessoas.filter(is_active=True)
-                grupos = grupos.filter(publico=True)
-                projetos = projetos.filter(publico=True)
+            grupos = perfil.grupos.all()
+            pessoas = perfil.filhos.all()
         
-        elif url.grupo:
-            tipo = 'grupo'
-            perfil = url.grupo
-
+        elif tipo == 'grupo':
             if not perfil.publico and user not in perfil.u0.all():
                 raise Http404("grupo privado")
-            
-            pessoas = perfil.u0.all()
-            grupos = None
-            projetos = perfil.url.projetos.all()
-            
             if user in perfil.u0.all():
                 editor = True
-            else:
-                pessoas = pessoas.filter(is_active=True)
-                projetos = projetos.filter(publico=True)
+            grupos = None
+            pessoas = perfil.u0.all()
+           
+        links = perfil.links.all()
+        projetos = url.projetos.all()        
+        if not editor:
+            pessoas = pessoas.filter(is_active=True)
+            projetos = projetos.filter(publico=True)
+            if grupos:
+                grupos = grupos.filter(publico=True)
 
     else:
         perfil = None
         url = None
         tipo = None
+        links = None
         pessoas = User.objects.filter(is_active=True)
         grupos = Grupo.objects.filter(publico=True)
         projetos = Projeto.objects.filter(publico=True)
@@ -123,6 +120,7 @@ def index(request, url=None):
         'pessoas': pessoas,
         'grupos': grupos,
         'projetos': projetos,
+        'links': links,
     }
     return render(request, 'index/base/_home.html', context)
 
@@ -178,27 +176,27 @@ def edit_info(request, url):
     if url.user:
         perfil = url.user
         if request.method == "POST":
-            form = UserForm(request.POST, instance=perfil, label_suffix='')
+            form = UserForm(request.POST, instance=perfil, label_suffix='', prefix='info')
             template = 'index/edit/info_form.html'
 
             if form.has_changed() and form.is_valid() and request.user==perfil:
                 form.save()
                 msg = f'dados atualizados <b>{ form.changed_data }</b>'
         else:
-            form = UserForm(instance=perfil, label_suffix='')
+            form = UserForm(instance=perfil, label_suffix='', prefix='info')
     
     # grupo
     elif url.grupo:
         perfil = url.grupo
         if request.method == "POST":
-            form = GrupoForm(request.POST, instance=perfil, label_suffix='')
+            form = GrupoForm(request.POST, instance=perfil, label_suffix='', prefix='info')
             template = 'index/edit/info_form.html'
             
             if form.has_changed() and form.is_valid() and request.user in perfil.u0.all():
                 form.save()
                 msg = f'dados atualizados <b>{ form.changed_data }</b>'
         else:
-            form = GrupoForm(instance=perfil, label_suffix='')
+            form = GrupoForm(instance=perfil, label_suffix='', prefix='info')
 
     context = {
         'url': url,
@@ -232,8 +230,42 @@ def edit_url(request, url):
     }
     return render(request, 'index/base/msg.html', context)
 
+# edit links
+def edit_links(request, url):
+    url = get_object_or_404(Url, nome=url)
+    perfil = get_perfil(url)
+    links = perfil.links.all()
+    novo = ''
+    atualizado = []
+
+    if request.method == "POST":
+        formset = LinksFormSet(request.POST, queryset=links, prefix='link')
+        if formset.is_valid():
+            novos_links = formset.save()
+            # verifica os links e adiciona os novos
+            for link in novos_links:
+                if link not in links:
+                    perfil.links.add(link)
+                    novo = link.id
+                atualizado.append(link.id)
+
+            # atualiza o formset
+            links = perfil.links.all()
+            formset = LinksFormSet(queryset=links, prefix='link')
+    else:
+        formset = LinksFormSet(queryset=links, prefix='link')
+    
+    context = {
+        'formset': formset,
+        'links': links,
+        'novo': novo,
+        'atualizado': atualizado,
+        'redirect': reverse('index:edit-links', kwargs={'url': url}),
+    }
+    return render(request, 'index/edit/links_form.html', context)
+
 #---------------------------------------------------------
-# check url
+# check codinome
 def check_codinome(request, url=None):
     results = None
     if url:
@@ -574,6 +606,7 @@ def projeto(request, url, purl):
     url = get_object_or_404(Url, nome=url)
     projeto = get_object_or_404(Projeto, perfil=url, url=purl)
     tags = projeto.tags.all()
+    links = projeto.links.all()
     editor = True
     
     if (url.user and user != url.user) or (url.grupo and user not in url.grupo.u0.all()):
@@ -587,6 +620,7 @@ def projeto(request, url, purl):
         'url': url,
         'perfil': get_perfil(url),
         'tags': tags,
+        'links': links,
         'editor': editor,
         'tipo': 'projeto',
     }
@@ -594,7 +628,7 @@ def projeto(request, url, purl):
 
 # edit projeto
 @login_required
-def projeto_edit(request, url, purl, ativo='info'):
+def projeto_edit(request, url, purl, ativo='perfil'):
     user = request.user
     url = get_object_or_404(Url, nome=url)
     if (url.user and user != url.user) or (url.grupo and user not in url.grupo.u0.all()):
@@ -620,15 +654,69 @@ def projeto_edit(request, url, purl, ativo='info'):
 def projeto_edit_info(request, url, purl):
     url = get_object_or_404(Url, nome=url)
     projeto = get_object_or_404(Projeto, perfil=url, url=purl)
+    template = 'index/projeto/edit/info.html'
+    msg = None
+    redirect = None
 
+    if request.method == "POST":
+        form = ProjetoForm(request.POST, instance=projeto, label_suffix='', prefix='info')
+
+        if form.has_changed() and form.is_valid():
+            projeto = form.save(commit=False)
+            if 'nome' in form.changed_data:
+                projeto.url = projeto.define_url()
+                redirect = reverse('index:projeto-edit', kwargs={'url': url, 'purl': projeto.url })
+            projeto.save()
+            msg = f'dados atualizados <b>{ form.changed_data }</b>'
+            template = 'index/projeto/edit/info_form.html'
+    else:
+        form = ProjetoForm(instance=projeto, label_suffix='', prefix='info')
+    
     context = {
         'url': url,
         'projeto': projeto,
+        'form': form,
+        'msg': msg,
+        'redirect': redirect,
     }
-    return render(request, 'index/projeto/edit/info.html', context)
+    return render(request, template, context)
 
-# edit texto
-def projeto_edit_texto(request, url, purl):
+# edit links
+def projeto_edit_links(request, url, purl):
+    url = get_object_or_404(Url, nome=url)
+    projeto = get_object_or_404(Projeto, perfil=url, url=purl)
+    links = projeto.links.all()
+    novo = ''
+    atualizado = []
+
+    if request.method == "POST":
+        formset = LinksFormSet(request.POST, queryset=links, prefix='link')
+        if formset.is_valid():
+            novos_links = formset.save()
+            # verifica os links e adiciona os novos
+            for link in novos_links:
+                if link not in links:
+                    projeto.links.add(link)
+                    novo = link.id
+                atualizado.append(link.id)
+
+            # atualiza o formset
+            links = projeto.links.all()
+            formset = LinksFormSet(queryset=links, prefix='link')
+    else:
+        formset = LinksFormSet(queryset=links, prefix='link')
+    
+    context = {
+        'formset': formset,
+        'links': links,
+        'novo': novo,
+        'atualizado': atualizado,
+        'redirect': reverse('index:projeto-edit-links', kwargs={'url': url, 'purl':purl,}),
+    }
+    return render(request, 'index/edit/links_form.html', context)
+
+# edit tags
+def projeto_edit_tags(request, url, purl):
     url = get_object_or_404(Url, nome=url)
     projeto = get_object_or_404(Projeto, perfil=url, url=purl)
 
@@ -636,7 +724,33 @@ def projeto_edit_texto(request, url, purl):
         'url': url,
         'projeto': projeto,
     }
-    return render(request, 'index/projeto/edit/texto.html', context)
+    return render(request, 'index/projeto/edit/tags.html', context)
+
+
+# edit texto
+def projeto_edit_texto(request, url, purl):
+    url = get_object_or_404(Url, nome=url)
+    projeto = get_object_or_404(Projeto, perfil=url, url=purl)
+    msg = None
+    template = 'index/projeto/edit/texto.html'
+
+    if request.method == "POST":
+        form = ProjetoTextoForm(request.POST, instance=projeto, label_suffix='')
+
+        if form.has_changed() and form.is_valid():
+            form.save()
+            msg = f'texto de <b>{ projeto.nome }</b> atualizado'
+            template = 'index/projeto/edit/texto_form.html'
+    else:
+        form = ProjetoTextoForm(instance=projeto, label_suffix='')
+    
+    context = {
+        'url': url,
+        'projeto': projeto,
+        'form': form,
+        'msg': msg,
+    }
+    return render(request, template, context)
 
 # edit imagens
 def projeto_edit_imagens(request, url, purl):
@@ -659,6 +773,7 @@ def projeto_edit_equipe(request, url, purl):
         'projeto': projeto,
     }
     return render(request, 'index/projeto/edit/equipe.html', context)
+
 
 #---------------------------------------------------------
 # mudar visibilidade
@@ -946,4 +1061,18 @@ def check_email(request, pk):
 def clear(request):
     return HttpResponse('')
 
+# delte link
+@login_required
+@require_http_methods(['DELETE'])
+def delete_link(request, pk):
+    link = get_object_or_404(Link, pk=pk)
+    link.delete()
+
+    context = {
+        'msg': f'link <b>{ link.nome }</b> excluido',
+        'redirect': request.GET.get('redirect'),
+        'target': '#form-links',
+        'class': 'legenda mt2 mb2',
+    }
+    return render(request, 'index/base/msg.html', context)
 

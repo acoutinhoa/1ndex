@@ -3,10 +3,11 @@
 {% if tipo == 'clear' %}
 <div 
     class="c{{ cor|default:'2' }} {{ class|default:'legenda' }}"
+    hx-target="this"
     hx-get="{% url 'index:clear' %}" 
     hx-swap="outerHTML"
     hx-trigger="load delay:{{ tempo|default:'3' }}s">
-    >>> {{ msg|safe|default:'concluido.' }}
+    {{ msg|safe|default:'concluido.' }}
 </div>
 
 {% elif tipo == 'body' %}
@@ -18,7 +19,7 @@
     hx-swap="{{ swap|default:'outerHTML' }}"
     hx-target="{{ target|default:'#body' }}"
     hx-trigger="load delay:{{ tempo|default:'2' }}s">
-    >>> {{ msg|safe|default:'redirecionando...' }}
+    {{ msg|safe|default:'redirecionando...' }}
 </div>
 
 {% else %}
@@ -30,7 +31,7 @@
     hx-swap="{{ swap|default:'innerHTML' }}"
     hx-target="{{ target|default:'#content' }}"
     hx-trigger="load delay:{{ tempo|default:'2' }}s">
-    >>> {{ msg|safe|default:'concluido.' }}
+    {{ msg|safe|default:'concluido.' }}
 </div>
 
 {% endif %}

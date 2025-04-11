@@ -4,26 +4,27 @@
 {% include 'index/base/index_titulo.html' %}
 
 <!-- edit -->
-{% if extra == 'edit' %}
+{% if editor or extra %}
+    <div class='mt'>
     <!-- visibilidade -->
-    {% if tipo == 'grupo' or tipo == 'projeto' %}
-    {% include 'index/base/index_visibilidade.html' %}
-    {% endif %}
-
-<!-- perfil -->
-{% else %}
+    {% if extra == 'edit' %}
+        {% if tipo == 'grupo' or tipo == 'projeto' %}
+        {% include 'index/base/index_visibilidade.html' %}
+        {% endif %}
     <!-- links sistema -->
-    {% if editor %}
+    {% elif editor %}
         {% if tipo == 'projeto' %}
         {% url 'index:projeto-edit' url=url purl=item.url as link %}
         {% else %}
         {% url 'index:edit' url=url as link %}
         {% endif %}
-        
         <a href="{{ link }}"><div class="link btn c2 fr">edit</div></a>
     {% endif %}
+    </div>
+{% endif %}
 
-    <!-- info -->
+{% if not extra %}
+    <!-- perfil -->
     {% if tipo %}
     {% include 'index/base/index_info.html' %}
     {% endif %}
@@ -74,8 +75,3 @@
     {% endif %}
 
 {% endif %}
-
-
-
-
-

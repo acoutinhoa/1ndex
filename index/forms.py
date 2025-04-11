@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
+from django.forms import modelformset_factory
 from .models import *
 import datetime
 
@@ -9,7 +10,7 @@ class UserForm(forms.ModelForm):
         model = User
         fields = ['nome','pronome','info',]
         widgets = { 
-            'info': forms.Textarea(attrs={'rows': 5}),
+            'info': forms.Textarea(attrs={'rows': 5, 'placeholder': 'breve descrição', }),
             'pronome': forms.RadioSelect(attrs={'class': 'choices'}),
             }
 
@@ -19,7 +20,7 @@ class GrupoForm(forms.ModelForm):
         model = Grupo
         fields = ['nome','info']
         widgets = { 
-            'info': forms.Textarea(attrs={'rows': 5}),
+            'info': forms.Textarea(attrs={'rows': 5, 'placeholder': 'breve descrição do grupo', }),
             }
 
 # url
@@ -52,11 +53,32 @@ class ReativarForm(forms.Form):
 class ProjetoForm(forms.ModelForm):
     class Meta:
         model = Projeto
-        fields = ['nome',]
+        fields = ['nome', 'url', 'ano', 'etapa', 'info']
         widgets = { 
-            'info': forms.Textarea(attrs={'rows': 9}),
+            'info': forms.Textarea(attrs={'rows': 5, 'placeholder': 'breve descrição do projeto', }),
             }
 
+# projetos 
+class ProjetoTextoForm(forms.ModelForm):
+    class Meta:
+        model = Projeto
+        fields = ['texto']
+        widgets = { 
+            'texto': forms.Textarea(attrs={'rows': 19, 'placeholder': 'texto do projeto', }),
+            }
+
+# links
+LinksFormSet = modelformset_factory(
+    Link,
+    fields = ["nome", "url"],
+    extra = 1,
+    max_num = 10,
+    widgets = { 
+        'url': forms.Textarea(attrs={'rows': 1, 'placeholder': 'http://', }),
+        'nome': forms.Textarea(attrs={'rows': 1, 'placeholder': 'novo link', }),
+    }
+   # can_order = True,
+)
 
 # ##########################################################
 # # pacientes

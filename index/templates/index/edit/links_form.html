@@ -1,0 +1,63 @@
+{% load index_tags %}
+
+<h2 class='mb1'>links externos <span class="c0">[{{ links.count }}/10]</span></h2>
+
+<form 
+    method="POST"
+    class="w90"
+    hx-post="{{ redirect }}" 
+    hx-target='#form-links'
+    autocomplete="off">
+    {{ formset.management_form }}
+    
+    <input type="hidden" name="redirect" value="{{ redirect }}" />
+
+    <ol class="lista2">
+        {% for form in formset %}
+        <div id="link-{{ forloop.counter }}" class="row baseline {% if not forloop.first %}mt2{% endif %}">
+            {{ form.id }}
+            {% for field in form.visible_fields %}
+            <div class='{% if field.name == 'nome' %}w30 mr{% else %}w60{% endif %}'>
+                {% if field.name == 'nome' and form.id.value %}
+                    <li class="b c1">{{ field.name }}</li>
+                {% else %}
+                    <span class="b {% if not form.id.value %}c2{% else %}c1{% endif %}">{{ field.name }}</span>
+                {% endif %}
+                
+                {{ field }}
+                {% if field.errors %}<div class="legenda c2 mb2">{{ field.errors }}</div>{% endif %}
+            </div>
+            {% endfor %}
+
+            {% if form.id.value %}
+            <div 
+                class='btn c2 link ml'
+                hx-delete="{% url 'index:delete-link' pk=form.id.value %}"
+                hx-confirm="tem certeza que deseja deletar link '{{ form.nome.value }}'?"
+                hx-include="[name='redirect']"
+                hx-swap="outerHTML"
+                hx-target="#link-{{ forloop.counter }}" >
+                X
+            </div>
+            {% endif %}
+        </div>
+
+        {% if form.id.value in atualizado %}
+            {% if form.id.value == novo %}
+                {% set 'novo link criado' as msg %}
+            {% else %}
+                {% set 'link atualizado' as msg %}
+            {% endif %}
+            {% include 'index/base/msg.html' with tipo='clear' class='legenda mb2' tempo='4' msg=msg %}
+        {% endif %}
+
+        {% endfor %}
+
+    </ol>
+
+    <input 
+        type="submit" 
+        class="link btn c2 center" 
+        value="salvar" />
+</form>
+

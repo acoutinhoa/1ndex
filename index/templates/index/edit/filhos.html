@@ -6,8 +6,8 @@
 {% endif %}
 
 <!-- novo -->
-{% url 'index:check-nome' url=url as link %}
-{% include 'index/add/novo.html' with tipo='convite' %}
+{% url 'index:check-nome' url=url as post %}
+{% include 'index/add/novo.html' with tipo='convite' post=post %}
 <div class="c2 mt">você será responsável pelas pessoas que convidar<br></div>
 
 

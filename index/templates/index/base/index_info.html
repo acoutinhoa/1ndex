@@ -22,4 +22,11 @@
     {% if item.info %}
     <p class="mt">{{ item.info|linebreaksbr }}</p>
     {% endif %}
+
+    {% if links %}
+    <p class="c1 mt">links [{{ links.count }}]</p>
+    {% for l in links %}
+    <a href="{{ l.url }}" target="blank"><div class="link btn">{{ l.nome }}</div></a>
+    {% endfor %}
+    {% endif %}
 </div>

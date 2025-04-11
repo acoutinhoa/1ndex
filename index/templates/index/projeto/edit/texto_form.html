@@ -1,12 +1,12 @@
 <form 
     method="POST" 
-    hx-post="{% url 'index:edit-perfil' url=url %}" 
-    hx-target='#form-info'
+    hx-post="{% url 'index:projeto-edit-texto' url=url purl=projeto.url %}" 
+    hx-target='#form-texto'
     autocomplete="off">
     {% csrf_token %}
     
     {% for field in form %}
-    <h3 class="{% if field.name == 'nome' and not url.user %}c2{% elif not forloop.first %}mt2{% endif %}">{{ field.label_tag }}</h3>
+    <h3>{{ field.label_tag }}</h3>
     {{ field }}
     {% if field.errors %}<div class="legenda c2 mb2">{{ field.errors }}</div>{% endif %}
     {% endfor %}

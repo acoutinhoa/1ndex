@@ -9,7 +9,7 @@
 {% endif %}
 
 <div id="{{ tipo }}s" class="w80">
-    <h2>{{ tipo }}s [{{ lista.count|default:'0' }}]</h2>
+    <h2>{{ tipo }}s <span class="c0">[{{ lista.count }}]</span></h2>
     <input type="hidden" name="template" value="{{ template }}" />
 
     <ol>

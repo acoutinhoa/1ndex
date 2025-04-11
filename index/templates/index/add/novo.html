@@ -1,4 +1,4 @@
-<h2 class='c2 {{ css }}'>{% if titulo %}{{ titulo }}{% else %}novo {{ tipo }}{% endif %}</h2>
+<h3 class='c2 {{ css }}'>{% if titulo %}{{ titulo }}{% else %}novo {{ tipo }}{% endif %}</h3>
 
 <div id='novo-{{ tipo }}'>
     <div class="row baseline">
@@ -6,7 +6,7 @@
             type="text"
             class="w80"
             name="novo-{{ tipo }}" 
-            hx-post="{{ link }}"
+            hx-post="{{ post }}"
             hx-target="#results"
             hx-trigger="keyup chaged delay:500ms"
             placeholder="{{ ph|default:'nome' }}"

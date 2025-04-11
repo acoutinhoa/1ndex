@@ -1,0 +1,42 @@
+{% load widget_tweaks %}
+
+<form 
+    method="POST"
+    hx-post="{% url 'index:projeto-edit-perfil' url=url purl=projeto.url %}" 
+    hx-target='#form-info'
+    autocomplete="off">
+    {% csrf_token %}
+    
+    {% for field in form %}
+    {% if field.name == 'ano' %}<div class="row">{% endif %}
+    <div class='flex'>
+        <h3 class="{% if not forloop.first %}mt2{% endif %}">{{ field.label_tag }}</h3>
+        {% if field.name == 'url' %}
+            {% render_field field|append_attr:"readonly:readonly" class="c2" %}
+            <div class="legenda c1 mb2">gerado automaticamente a partir do nome do projeto</div>
+        {% else %}
+            {{ field }}
+        {% endif %}
+
+        {% if field.errors %}<div class="legenda c2 mb2">{{ field.errors }}</div>{% endif %}
+    </div>
+    {% if field.name == 'ano' %}<div class="mr"></div>{% endif %}
+    {% if field.name == 'etapa' %}</div>{% endif %}
+    
+    {% endfor %}
+
+    {% if msg %}
+    <div class = "mt mb">
+        {% include 'index/base/msg.html' with tipo='clear' %}
+        {% if redirect %}
+        {% include 'index/base/msg.html' with class='legenda' tipo='body' cor='2' tempo='3' msg='<b>redirecionando para a nova url...</b>' %}
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <input 
+        type="submit" 
+        class="link btn c2 center" 
+        value="salvar" />
+</form>
+

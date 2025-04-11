@@ -1,6 +1,6 @@
 <!-- novo -->
-{% url 'index:check-nome' url=url as link %}
-{% include 'index/add/novo.html' with tipo='grupo' %}
+{% url 'index:check-nome' url=url as post %}
+{% include 'index/add/novo.html' with tipo='grupo' post=post %}
 
 {% if grupos %}
 <!-- linha -->

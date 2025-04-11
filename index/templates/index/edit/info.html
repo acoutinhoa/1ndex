@@ -1,11 +1,17 @@
 <!-- url -->
-{% url 'index:check-url' url=url as link %}
-{% include 'index/add/novo.html' with tipo='url' titulo='codinome' value=url ph=' '  %}
+{% url 'index:check-url' url=url as post %}
+{% include 'index/add/novo.html' with tipo='url' titulo='codinome' value=url ph=' ' post=post %}
 
-<!-- linha -->
 <div class="linha"></div>
 
 <!-- info -->
 <div id='form-info' class='w80 mb'>
     {% include 'index/edit/info_form.html' %}
+</div>
+
+<div class='linha'></div>
+
+<!-- links -->
+<div id='form-links'>
+    <div hx-get="{% url 'index:edit-links' url=url %}" hx-target="this" hx-trigger="load"></div>
 </div>

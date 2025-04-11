@@ -1,6 +1,6 @@
 <!-- novo adm -->
-{% url 'index:search-adm' url=url as link %}
-{% include 'index/add/novo.html' with tipo='adm' titulo="adicionar adm" ph='nome ou codinome' %}
+{% url 'index:search-adm' url=url as post %}
+{% include 'index/add/novo.html' with tipo='adm' titulo="adicionar adm" ph='nome ou codinome' post=post %}
 
 <!-- linha -->
 <div class="linha"></div>

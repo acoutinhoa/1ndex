@@ -1,1 +1,11 @@
-edit info
+<!-- info -->
+<div id='form-info' class='w80'>
+    {% include 'index/projeto/edit/info_form.html' %}
+</div>
+
+<div class='linha'></div>
+
+<!-- links -->
+<div id='form-links'>
+    <div hx-get="{% url 'index:projeto-edit-links' url=url purl=projeto.url %}" hx-target="this" hx-trigger="load"></div>
+</div>
