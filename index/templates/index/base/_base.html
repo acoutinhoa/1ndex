@@ -38,6 +38,7 @@
 <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}' id="body" class="body row">
 
 <div id="sidebar" class="sidebar column">
+    {% block sidebar %}
     <div id="user" class="user margem2">
         {% block user %}
         {% include "index/base/user.html" %}
@@ -47,17 +48,20 @@
         {% block index %}
         {% endblock %}
     </div>
+    {% endblock %}
 </div>
 
 <div id="main" class="main column">
-    <div id="tags" class="tags margem">
-        {% block tags %}
+    {% block main %}
+    <div id="menu" class="tags margem">
+        {% block menu %}
         {% endblock %}
     </div>
     <div id="content" class="content margem flow ">
         {% block content %}
         {% endblock %}
     </div>
+    {% endblock %}
 </div>
 
 </body>

@@ -21,7 +21,7 @@
         @click.prevent="tab = '{{ tab }}'"
         hx-get="{{ link }}"
         {% if tipo == 'projeto' %}
-            hx-push-url="/{{ perfil }}/{{ item.url }}/edit/{{ tab }}/"
+            hx-push-url="/{{ url }}/{{ item.url }}/edit/{{ tab }}/"
         {% else %}
             hx-push-url="/{{ url }}/edit/{{ tab }}/"
         {% endif %}

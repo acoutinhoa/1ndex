@@ -4,10 +4,15 @@
 {% include "index/base/_index.html" %}
 {% endblock %}
 
-{% block tags %}
-{% include "index/home/tags.html" %}
-{% endblock %}
-
-{% block content %}
-{% include "index/home/projetos.html" %}
+{% block main %}
+<div id="tags" class="tags margem">
+    {% block tags %}
+    {% include 'index/base/lista_tags.html' with lista=tags  %}
+    {% endblock %}
+</div>
+<div id="content" class="content margem flow ">
+    {% block content %}
+    {% include "index/base/projetos.html" %}
+    {% endblock %}
+</div>
 {% endblock %}

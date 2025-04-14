@@ -1,1 +1,30 @@
-edit tags
+{% load index_tags %}
+
+{% if tags %}
+{% set projeto.get_absolute_url as perfil_url %}
+{% include 'index/base/lista_tags.html' with lista=tags tag_tipo='remove' titulo=projeto %}
+
+
+<div class="linha"></div>
+{% endif %}
+
+<form 
+    id="form-tag" 
+    hx-post=" {% url 'index:projeto-search-tags' url=url purl=projeto.url %}"
+    hx-target="#tags_results"
+    hx-trigger="keyup chaged delay:500ms, change" >
+
+    <h3 class='c2'>nova tag</h3>
+    <div class="row baseline">
+        <input type="text" class="w80" name="novo-tag" placeholder="buscar ou criar tag" autocomplete="off" />
+        <div id="submit"></div>
+    </div>
+        
+    <div class="row wrap baseline">
+        <input class="wa" type="radio" id="publico" name="publico" value="1" checked /><label for="publico" class="c1 ml2">tag pública</label>
+        <input class="wa ml"  type="radio" id="privado" name="publico" value="0" /><label for="privado" class="c2 ml2">tag privada</label>
+    </div>
+<form>
+
+<div id='tags_results'>{% include 'index/add/results_tags.html' %}</div>
+    

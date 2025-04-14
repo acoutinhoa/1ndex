@@ -59,7 +59,6 @@ def descendente(p1,p2):
 	ver_descendencia(p1,p2)			
 	return False
 
-
 @register.filter
 def tempo_desde(data):
 	agora = timezone.now()
@@ -75,3 +74,7 @@ def tempo_desde(data):
 		txt = f'{dias} dia{"s" if dias>1 else ""} e '+txt
 	return txt
 
+@register.filter
+def count_projetos(qs, id):
+	qs = qs.filter(tags__id=id)
+	return qs.count()

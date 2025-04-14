@@ -7,17 +7,14 @@
             class="w80"
             name="novo-{{ tipo }}" 
             hx-post="{{ post }}"
-            hx-target="#results"
+            hx-target="{{ target|default:'#results' }}"
             hx-trigger="keyup chaged delay:500ms"
+            {% if include %}hx-include="{{ include }}"{% endif %}
             placeholder="{{ ph|default:'nome' }}"
             value="{{ value }}"
             autocomplete="off" />
         <div id="submit"></div>
     </div>
     
-    {% if tipo == 'adm' or tipo == 'mae' %}
-    <div id="results"></div>  
-    {% else %}
-    <div id="results" class="legenda"></div>  
-    {% endif %} 
+    <div id="results" {% if tipo != 'adm' or tipo != 'mae' or tipo != 'url' %}class="legenda"{% endif %}></div>  
 </div>

@@ -2,7 +2,7 @@
 <h2>transferência de <a class="link" href="{{ filho.get_absolute_url }}">{{ filho }}</a></h2>
 
 {% url 'index:search-mae' url=url pk=filho.pk as post %}
-{% include 'index/add/novo.html' with tipo='mae' titulo='nova mãe' css="mt1" ph='nome ou codinome' post=post %}
+{% include 'index/add/novo.html' with tipo='mae' titulo='nova mãe' css="mt1" ph='nome ou codinome' %}
 
 <div class="legenda c1 mt">
     não pode ser descendente de <b>{{ filho }}</b><br>

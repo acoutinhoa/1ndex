@@ -8,12 +8,13 @@ from django.urls import reverse, reverse_lazy
 from string import ascii_letters, digits, ascii_lowercase
 from django.conf import settings
 from django.utils.text import slugify
+from django.db.models import Count, Q
 
 from .models import *
 from .forms import *
 
 
-url_proibidas = ['htmx', 'admin', 'accounts', 'invite', 'edit', 'add', 'delete',] 
+url_proibidas = ['htmx', 'admin', 'accounts', 'invite', 'edit', 'add', 'delete','tag'] 
 
 #########################################################################################################################
 # menu
@@ -53,7 +54,7 @@ def menu_edit_projeto(url, purl):
 
 
 #########################################################################################################################
-# home
+# defs
 #########################################################################################################################
 
 def get_perfil(url, get_tipo=False):
@@ -68,16 +69,28 @@ def get_perfil(url, get_tipo=False):
         return perfil, tipo
     return perfil
 
-#----------------------------------------------------------
+def remove_espacos(nome):
+    nome = list(nome)
+    for i in range(2):
+        while nome[0] == ' ':
+            nome.pop(0)
+        nome.reverse()    
+    nome = ''.join(nome)
+    return nome
+
+#########################################################################################################################
+# home
+#########################################################################################################################
 
 # home
-def index(request, url=None):
+def index(request, url=None, filtros=None):
     user = request.user
     editor = False
     
     if url:
         url = get_object_or_404(Url, nome=url)
         perfil, tipo = get_perfil(url, get_tipo=True)
+        tags = Tag.objects.filter(projetos__perfil=url).distinct()
         
         if tipo == 'user':
             if not perfil.is_active:
@@ -100,6 +113,7 @@ def index(request, url=None):
         if not editor:
             pessoas = pessoas.filter(is_active=True)
             projetos = projetos.filter(publico=True)
+            tags = tags.exclude(publico=False)
             if grupos:
                 grupos = grupos.filter(publico=True)
 
@@ -111,7 +125,11 @@ def index(request, url=None):
         pessoas = User.objects.filter(is_active=True)
         grupos = Grupo.objects.filter(publico=True)
         projetos = Projeto.objects.filter(publico=True)
+        tags = Tag.objects.filter(publico=True)
     
+    tags = tags.annotate(Count("projetos"))
+    tags = tags.order_by('-projetos__count', 'nome')
+
     context = {
         'url': url,
         'item': perfil,
@@ -121,6 +139,8 @@ def index(request, url=None):
         'grupos': grupos,
         'projetos': projetos,
         'links': links,
+        'tags': tags,
+        'filtros': filtros,
     }
     return render(request, 'index/base/_home.html', context)
 
@@ -485,6 +505,11 @@ def grupo_visibilidade(request, url):
     # var = request.POST.get('var')
 
     grupo.mudar_visibilidade()
+
+    # atualiza o d1 dos adms
+    if grupo.publico:
+        for user in grupo.u0.all():
+            user.save()
     
     context = {
         'item': grupo,
@@ -614,7 +639,7 @@ def projeto(request, url, purl):
             raise Http404("projeto privado")
         editor = False
         tags = tags.exclude(publico=False)
-
+    
     context = {
         'item': projeto,
         'url': url,
@@ -716,16 +741,93 @@ def projeto_edit_links(request, url, purl):
     return render(request, 'index/edit/links_form.html', context)
 
 # edit tags
-def projeto_edit_tags(request, url, purl):
+def projeto_edit_tags(request, url, purl, publico=True,):
     url = get_object_or_404(Url, nome=url)
     projeto = get_object_or_404(Projeto, perfil=url, url=purl)
+    tags = projeto.tags.all()
+
+    # tags_all = Tag.objects.all().exclude(projetos=projeto)
+    tags_index = Tag.objects.exclude(id__in=tags)
+    tags_perfil = tags_index.filter(projetos__perfil=url).distinct()
+    tags_index = tags_index.exclude(id__in=tags_perfil).exclude(publico=False)
 
     context = {
         'url': url,
         'projeto': projeto,
+        'tags': tags,
+        'tags_perfil': tags_perfil,
+        'tags_index': tags_index,
+        'publico': publico,
     }
     return render(request, 'index/projeto/edit/tags.html', context)
 
+# search tags
+def projeto_search_tags(request, url, purl):
+    url = get_object_or_404(Url, nome=url)
+    projeto = get_object_or_404(Projeto, perfil=url, url=purl)
+    results = ''
+    
+    publico = int(request.POST.get('publico'))
+    busca = request.POST.get('novo-tag')
+    if busca:
+        busca = remove_espacos(busca)
+
+    if publico:
+        if busca:
+            tags = Tag.objects.filter(nome__icontains=busca)
+        else:
+            tags = Tag.objects.all()
+    
+        tags = tags.exclude(projetos=projeto)
+        tags_perfil = tags.filter(projetos__perfil=url).distinct()
+        tags_index = tags.exclude(id__in=tags_perfil).exclude(publico=False)
+    else:
+        tags_perfil = None
+        tags_index = None
+
+    if busca and (not publico or not Tag.objects.filter(nome=busca).exists()):
+        results = 'criar'
+
+    context = {
+        'url': url,
+        'projeto': projeto,
+        'tags_perfil': tags_perfil,
+        'tags_index': tags_index,
+        'results': results,
+        'publico': publico,
+    }
+    return render(request, 'index/add/results_tags.html', context)
+
+# add tags
+def projeto_add_tag(request, url, purl, tag=None):
+    url = get_object_or_404(Url, nome=url)
+    projeto = get_object_or_404(Projeto, perfil=url, url=purl)
+    
+    if tag:
+        nova_tag = get_object_or_404(Tag, id=tag)
+    else:
+        nova_tag = request.POST.get('novo-tag')
+        publico = int(request.POST.get('publico'))
+        nova_tag = remove_espacos(nova_tag)
+        nova_tag = Tag.objects.create(nome=nova_tag, publico=publico)
+    
+    projeto.tags.add(nova_tag)
+
+    return redirect('index:projeto-edit-tags', url=url, purl=purl)
+
+# remove tags
+@require_http_methods(['DELETE'])
+def projeto_remove_tag(request, url, purl, tag):
+    url = get_object_or_404(Url, nome=url)
+    projeto = get_object_or_404(Projeto, perfil=url, url=purl)
+    tag = get_object_or_404(Tag, id=tag)
+
+    projeto.tags.remove(tag)
+
+    if not tag.projetos.all():
+        tag.delete()
+
+    return redirect('index:projeto-edit-tags', url=url, purl=purl)
 
 # edit texto
 def projeto_edit_texto(request, url, purl):
@@ -783,6 +885,11 @@ def projeto_visibilidade(request, url, purl):
     template = request.POST.get('template')
 
     projeto.mudar_visibilidade()
+    
+    # atualiza o d1 dos adms
+    if projeto.publico:
+        perfil = get_perfil(url)
+        perfil.save()
     
     context = {
         'tipo': 'projeto',

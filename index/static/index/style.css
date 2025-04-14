@@ -246,6 +246,7 @@ label {
 .w50 {width: 50%;}
 .w30 {width: 30%;}
 .w10 {width: 10%;}
+.wa {width: auto;}
 
 /* altura */
 .h100 {height: 100%;}
@@ -263,6 +264,7 @@ label {
 .ml2 {padding-left: 9px;}
 .mr {margin-right: 19px;}
 .mr2 {padding-right: 9px;}
+.mr4 {margin-right: 4px;}
 
 .mb {padding-bottom: 19px;}
 .mb1 {padding-bottom: 29px;}
@@ -287,6 +289,7 @@ label {
 .margem2 {padding: 19px 39px 29px;}
 .margem3 {padding: 19px 19px;}
 
-.dashed {margin:39px -91px; border-bottom: dashed rgb(255,0,255) var(--b); height: 0;}
 .linha {margin:39px -91px; border-bottom: solid rgb(255,0,255) var(--b); height: 0;}
 .linha2 {margin:19px -39px; border-bottom: solid rgb(0,255,255) var(--b); height: 0;}
+.dashed {border-style: dashed;}
+.fina {border-width: var(--b2); margin:0 -91px; }

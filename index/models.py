@@ -17,7 +17,21 @@ class Link(models.Model):
     def __str__(self):
         return str(self.nome)
 
-class User(AbstractUser):
+class Base(models.Model):
+    d0 = models.DateTimeField(auto_now_add=True)
+    d1 = models.DateTimeField(auto_now=True)
+    nome = models.CharField(max_length=119, validators=[MinLengthValidator(2),])
+    info = models.CharField(max_length=912, blank=True, null=True, verbose_name='descrição')
+    links = models.ManyToManyField(Link)
+
+    def __str__(self):
+        return str(self.nome)
+
+    class Meta:
+        abstract = True
+        ordering = ['-d1']
+
+class User(AbstractUser, Base):
     # edita fields do djando
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     username = models.CharField(max_length=91, validators=[UnicodeUsernameValidator(),], unique=True, verbose_name='codinome',)
@@ -25,12 +39,8 @@ class User(AbstractUser):
     
     # adiciona novos fields
     u0 = models.ForeignKey('self', on_delete=models.SET_NULL, blank=True, null=True, related_name='filhos')
-    d0 = models.DateTimeField(auto_now_add=True)
-    d1 = models.DateTimeField(auto_now=True)
     nome = models.CharField(max_length=119, blank=True, null=True)
-    info = models.CharField(max_length=912, blank=True, null=True, verbose_name='bio')
     pronome = models.CharField(choices=Pronome, max_length=13, default='NENHUM')
-    links = models.ManyToManyField(Link)
 
     def grupos_publicos(self):
         return self.grupos.filter(publico=True)
@@ -48,44 +58,23 @@ class User(AbstractUser):
         if novo:
             Url.objects.create(user=self, nome=self.username, ) # define url do user
 
-    class Meta:
-        ordering = ['-d1']
-
     def get_absolute_url(self):
         return reverse('index:perfil', kwargs={'url': self.url})
 
-
-class Base(models.Model):
-    u0 = models.ForeignKey(User, on_delete=models.CASCADE) # >>>>>>>>>>>>> definir o on_delete
-    d0 = models.DateTimeField(auto_now_add=True)
-    d1 = models.DateTimeField(auto_now=True)
-    nome = models.CharField(max_length=119, validators=[MinLengthValidator(2),])
-    info = models.CharField(max_length=912, blank=True, null=True, verbose_name='bio')
-
     def __str__(self):
-        return str(self.nome)
-
-    class Meta:
-        abstract = True
-        ordering = ['-d1']
+        return str(self.username)
 
 
 class Grupo(Base):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     u0 = models.ManyToManyField(User, related_name='grupos') # adicionar o user aos u0 quando o grupo for criada
     publico = models.BooleanField(default=False, verbose_name='grupo público')
-    links = models.ManyToManyField(Link)
 
-    def define_url(self, n=0, m=0):
-        slug = slugify(self.nome)
+    def define_url(self, n=0):
+        slug = slug0 = slugify(self.nome)
         while Url.objects.filter(nome=slug).exists():
             n += 1
-            if m:
-                m = len(str(n))+1
-                slug = f"{slug[:-m]}-{n}"
-            else:
-                slug = f"{slug}-{n}"
-                m = 1
+            slug = f"{slug0}-{n}"
         return slug
 
     def mudar_visibilidade(self):
@@ -137,7 +126,7 @@ class Convite(models.Model):
         return reverse('index:convite', kwargs={'pk': self.pk})
 
 class Tag(models.Model):
-    nome = models.SlugField(allow_unicode=True, unique=True)
+    nome = models.CharField(max_length=39)
     publico = models.BooleanField(default=True)
 
     def __str__(self):
@@ -151,6 +140,7 @@ def projeto_imagepath(instance, filename):
     return 'index/{0}/{1}'.format(instance.pk, filename)
 
 class Projeto(Base):
+    u0 = models.ForeignKey(User, on_delete=models.CASCADE) # >>>>>>>>>>>>> definir o on_delete
     texto = models.TextField(blank=True, null=True)
     publico = models.BooleanField(default=False)
     perfil = models.ForeignKey(Url, on_delete=models.CASCADE, related_name='projetos')
@@ -165,16 +155,11 @@ class Projeto(Base):
     # -ordem [] ()
     # -tempo total [gen] (X)
 
-    def define_url(self, n=0, m=0):
-        slug = slugify(self.nome)
+    def define_url(self, n=0):
+        slug = slug0 = slugify(self.nome)
         while Projeto.objects.filter(perfil=self.perfil, url=slug).exists():
             n += 1
-            if m:
-                m = len(str(n))+1
-                slug = f"{slug[:-m]}-{n}"
-            else:
-                slug = f"{slug}-{n}"
-                m = 1
+            slug = f"{slug0}-{n}"
         return slug
 
     def mudar_visibilidade(self):

@@ -1,0 +1,28 @@
+{% if titulo %}<h3 class="mt mr">tags <a href="{{ perfil_url }}" class="link2">{{ titulo }}</a> <span class="c0">[{{lista.count}}]</span></h3>{% endif %}
+
+<div class="row wrap baseline">
+    {% for item in lista %}
+        <div class="btn mr mt2 row">
+            <div 
+                class="mr4 {% if not item.publico %}c2{% endif %} {% if not titulo %}h3 c1 link2 {% else %}link{% endif %}" 
+            {% if tag_tipo == 'remove' %}
+                hx-delete="{% url 'index:projeto-remove-tag' url=url purl=projeto.url tag=item.id %}" 
+                hx-target="#content">
+                {{ item }}</div> <span class="c2 legenda">(-)</span>
+            {% elif tag_tipo == 'add' %}
+                hx-post="{% url 'index:projeto-add-tag' url=url purl=projeto.url tag=item.id %}" 
+                hx-target="#content">
+                {{ item }}</div> <span class="c1 legenda">(+)</span>
+            {% elif tipo == 'projeto' %}
+                {% comment %} hx-post="{% url 'index:projeto-add-tags' url=url purl=projeto.url tag=item.id %}"  {% endcomment %}
+                hx-target="#content">
+                {{ item }}</div>
+            {% else %}
+                {% comment %} hx-post="{% url 'index:projeto-add-tags' url=url purl=projeto.url tag=item.id %}"  {% endcomment %}
+                hx-target="#content">
+                {{ item }}</div> <span class="legenda">[{{ item.projetos__count }}]</span>
+            {% endif %}
+        </div>
+    {% endfor %}
+</div>
+    

@@ -1,0 +1,28 @@
+{% load index_tags %}
+
+{% if publico %}
+<div class="linha fina mt1"></div>
+<div id="tags_perfil">
+    {% set url.get_absolute_url as perfil_url %}
+    {% include 'index/base/lista_tags.html' with lista=tags_perfil tag_tipo='add' titulo=projeto.perfil %}
+</div>
+    
+<div class="linha fina mt"></div>
+<div id="tags_index">
+    {% url 'index:index' as perfil_url %}
+    {% include 'index/base/lista_tags.html' with lista=tags_index tag_tipo='add' titulo='1ndex' %}
+</div>
+{% endif %}
+
+{% if results == 'criar' %}
+<div id="submit"
+    class="btn link c2 ml"
+    hx-swap-oob="true"
+    hx-post="{% url 'index:projeto-add-tag' url=url purl=projeto.url %}"
+    hx-target="#content"
+    hx-include="[name='novo-tag'],[name='publico']">
+    criar
+</div>
+{% else %}
+<div id="submit" hx-swap-oob="true"></div>
+{% endif %}

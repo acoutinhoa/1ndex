@@ -6,13 +6,13 @@
     {% url 'index:projeto-visibilidade' url=url purl=item.url as link %}
 {% endif %}
 
-<input type="hidden" name="template" value="index/base/_index.html" />
+<input type="hidden" name="template" value="index/base/_index.html" id="index_template" />
 <div class="btn ml2 fr {% if item.publico %}c1{% else %}c2{% endif %}">
     [<span
         class="link {% if item.publico %}c2{% endif %}" 
         hx-post="{{ link }}"
         hx-target="#index"
-        hx-include="[name='template']" >
+        hx-include="#index_template" >
         {% if item.publico %}privatizar{% else %}publicar{% endif %}
     </span>]
 </div>

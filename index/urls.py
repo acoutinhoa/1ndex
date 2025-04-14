@@ -11,6 +11,7 @@ app_name = 'index'
 projeto_edit_htmx_patterns = [
     path('perfil/', views.projeto_edit_info, name='projeto-edit-perfil'),
     path('links/', views.projeto_edit_links, name='projeto-edit-links'),
+    path('tags/privada/', views.projeto_edit_tags, {"publico": False}, name='projeto-edit-tags-privada'),
     path('tags/', views.projeto_edit_tags, name='projeto-edit-tags'),
     path('texto/', views.projeto_edit_texto, name='projeto-edit-texto'),
     path('imagens/', views.projeto_edit_imagens, name='projeto-edit-imagens'),
@@ -27,6 +28,10 @@ projeto_patterns = [
     # delete
     path('delete/', views.delete_projeto,  name='delete-projeto'),
     # htmx
+    path('search/tags/', views.projeto_search_tags, name='projeto-search-tags'),
+    path('remove/tag/<int:tag>/', views.projeto_remove_tag, name='projeto-remove-tag'),
+    path('add/tag/<int:tag>/', views.projeto_add_tag, name='projeto-add-tag'),
+    path('add/tag/', views.projeto_add_tag, name='projeto-add-tag'),
     path('visibilidade/', views.projeto_visibilidade, name='projeto-visibilidade'),
 ]
 
@@ -82,6 +87,7 @@ edit_htmx_patterns = [
 # perfil
 perfil_patterns = [
     path('', views.index, name='perfil'),
+    path('tag/<path:filtros>/', views.index, name='perfil-tags'),
     # edit
     path('edit/', views.edit, name='edit'),
     path('edit/<str:ativo>/', views.edit, name='edit-ativo'),
@@ -92,6 +98,7 @@ perfil_patterns = [
     # htmx
     path('htmx/search/adm/', views.search_adm, name='search-adm'),
     path('htmx/visibilidade/grupo/', views.grupo_visibilidade, name='grupo-visibilidade'),
+    path('htmx/tag/<path:filtros>/', views.index, name='perfil-tags'),
     # projetos
     path('<str:purl>/', include(projeto_patterns)),
 ]
@@ -114,6 +121,7 @@ invite_patterns = [
 
 htmx_patterns = [
     path('clear/', views.clear, name='clear'),
+    path('tag/<path:filtros>/', views.index, name='index-tags'),
     # delete
     path('link/delete/<str:pk>/', views.delete_link, name='delete-link'),
     # check
@@ -130,6 +138,7 @@ htmx_patterns = [
 
 urlpatterns = [
     path('', views.index, name='index'),
+    path('tag/<path:filtros>/', views.index, name='index-tags'),
     path('invite/<str:pk>/', include(invite_patterns)),
     path('htmx/', include(htmx_patterns)),
     path('<str:url>/', include(perfil_patterns)),
