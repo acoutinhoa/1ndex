@@ -5,14 +5,11 @@
 {% endblock %}
 
 {% block main %}
-<div id="tags" class="tags margem">
-    {% block tags %}
-    {% include 'index/base/lista_tags.html' with lista=tags  %}
-    {% endblock %}
-</div>
-<div id="content" class="content margem flow ">
-    {% block content %}
-    {% include "index/base/projetos.html" %}
-    {% endblock %}
-</div>
+    {% if tipo == 'projeto' %}
+    <div id="content" class="content margem flow ">
+        {% include 'index/projeto/projeto.html'  %}
+    </div>
+    {% else %}
+    {% include 'index/base/_main.html'  %}
+    {% endif %}
 {% endblock %}

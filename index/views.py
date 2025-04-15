@@ -14,8 +14,6 @@ from .models import *
 from .forms import *
 
 
-url_proibidas = ['htmx', 'admin', 'accounts', 'invite', 'edit', 'add', 'delete','tag'] 
-
 #########################################################################################################################
 # menu
 #########################################################################################################################
@@ -57,17 +55,14 @@ def menu_edit_projeto(url, purl):
 # defs
 #########################################################################################################################
 
-def get_perfil(url, get_tipo=False):
+def get_perfil(url):
     if url.user:
         perfil = url.user
         tipo = 'user'
-    elif url.grupo:
+    else:
         perfil = url.grupo
         tipo = 'grupo'
-
-    if get_tipo:
-        return perfil, tipo
-    return perfil
+    return perfil, tipo
 
 def remove_espacos(nome):
     nome = list(nome)
@@ -89,7 +84,7 @@ def index(request, url=None, filtros=None):
     
     if url:
         url = get_object_or_404(Url, nome=url)
-        perfil, tipo = get_perfil(url, get_tipo=True)
+        perfil, tipo = get_perfil(url)
         tags = Tag.objects.filter(projetos__perfil=url).distinct()
         
         if tipo == 'user':
@@ -127,8 +122,7 @@ def index(request, url=None, filtros=None):
         projetos = Projeto.objects.filter(publico=True)
         tags = Tag.objects.filter(publico=True)
     
-    tags = tags.annotate(Count("projetos"))
-    tags = tags.order_by('-projetos__count', 'nome')
+    tags = tags.filter(projetos__id__in=projetos).annotate(Count("projetos")).order_by('-projetos__count', 'nome')
 
     context = {
         'url': url,
@@ -148,26 +142,19 @@ def index(request, url=None, filtros=None):
 @login_required
 def edit(request, url, ativo='perfil'):
     url = get_object_or_404(Url, nome=url)
+    perfil, tipo = get_perfil(url)
     content= reverse(f'index:edit-{ativo}', kwargs={'url': url})
 
     # user
-    if url.user:
-        perfil = url.user
-        
+    if tipo == 'user':
         if request.user != perfil:
             raise PermissionDenied
-        
-        tipo = 'user'
         menu = menu_edit_user(url)
 
     # grupo
-    elif url.grupo:
-        perfil = url.grupo
-        
+    elif tipo == 'grupo':
         if request.user not in perfil.u0.all():
             raise PermissionDenied
-
-        tipo = 'grupo'
         menu = menu_edit_grupo(url)
 
     context = {
@@ -189,12 +176,12 @@ def edit(request, url, ativo='perfil'):
 # edit info
 def edit_info(request, url):
     url = get_object_or_404(Url, nome=url)
+    perfil, tipo = get_perfil(url)
     template = 'index/edit/info.html'
     msg = None
 
     # user
-    if url.user:
-        perfil = url.user
+    if tipo == 'user':
         if request.method == "POST":
             form = UserForm(request.POST, instance=perfil, label_suffix='', prefix='info')
             template = 'index/edit/info_form.html'
@@ -206,8 +193,7 @@ def edit_info(request, url):
             form = UserForm(instance=perfil, label_suffix='', prefix='info')
     
     # grupo
-    elif url.grupo:
-        perfil = url.grupo
+    elif tipo == 'grupo':
         if request.method == "POST":
             form = GrupoForm(request.POST, instance=perfil, label_suffix='', prefix='info')
             template = 'index/edit/info_form.html'
@@ -227,21 +213,21 @@ def edit_info(request, url):
 
 # edit url
 def edit_url(request, url):
+    user = request.user
     url = get_object_or_404(Url, nome=url)
-    nova_url = request.POST.get('novo-url')
+    perfil, tipo = get_perfil(url)
 
     # verifica user
-    if not ( request.user == url.user or request.user in url.grupo.u0.all() ):
+    if (tipo=='user' and user != perfil) or (tipo=='grupo' and user not in perfil.u0.all()):
         raise PermissionDenied
 
+    nova_url = request.POST.get('novo-url')
     url.nome = nova_url
     url.save()
     
-    if url.grupo:
-        url.grupo.save()
-    elif url.user:
-        url.user.username = url.nome
-        url.user.save()
+    if tipo == 'user':
+        perfil.username = url.nome
+    perfil.save()
             
     context = {
         'msg': 'redirecionando para a nova url...',
@@ -253,7 +239,7 @@ def edit_url(request, url):
 # edit links
 def edit_links(request, url):
     url = get_object_or_404(Url, nome=url)
-    perfil = get_perfil(url)
+    perfil, tipo = get_perfil(url)
     links = perfil.links.all()
     novo = ''
     atualizado = []
@@ -458,14 +444,15 @@ def edit_grupos(request, url):
 # add grupo
 def add_grupo(request, url):
     url = get_object_or_404(Url, nome=url)
+    perfil, perfil_tipo = get_perfil(url)
 
     # verifica user - só user pode criar grupo
-    if not url.user or url.user != request.user:
+    if perfil_tipo != 'user' or perfil != request.user:
         raise PermissionDenied
     
     nome = request.POST.get('novo-grupo')
     novo = Grupo.objects.create(nome=nome)
-    novo.u0.add(url.user)
+    novo.u0.add(perfil)
 
     context = {
         'msg': f'redirecionando para a página de edições do novo grupo <b>{ novo.nome }</b>',
@@ -502,7 +489,6 @@ def delete_grupo(request, url):
 def grupo_visibilidade(request, url):
     grupo = get_object_or_404(Grupo, url__nome=url)
     template = request.POST.get('template')
-    # var = request.POST.get('var')
 
     grupo.mudar_visibilidade()
 
@@ -563,10 +549,11 @@ def edit_projetos(request, url):
 # add projeto
 def add_projeto(request, url):
     user = request.user
-    url= get_object_or_404(Url, nome=url)
+    url = get_object_or_404(Url, nome=url)
+    perfil, perfil_tipo = get_perfil(url)
 
     # grupos e pessoas podem criar projetos
-    if (url.user and user != url.user) or (url.grupo and user not in url.grupo.u0.all()):
+    if (perfil_tipo == 'user' and user != perfil) or (perfil_tipo == 'grupo' and user not in perfil.u0.all()):
         raise PermissionDenied
 
     nome = request.POST.get('novo-projeto')
@@ -587,8 +574,10 @@ def delete_projeto(request, url, purl):
     user = request.user
     url = get_object_or_404(Url, nome=url)
     projeto = get_object_or_404(Projeto, perfil=url, url=purl)
-        
-    if (url.user and user != url.user) or (url.grupo and user not in url.grupo.u0.all()):
+    perfil, perfil_tipo = get_perfil(url)
+
+    # grupos e pessoas podem criar projetos
+    if (perfil_tipo == 'user' and user != perfil) or (perfil_tipo == 'grupo' and user not in perfil.u0.all()):
         raise PermissionDenied
     
     projeto.delete()
@@ -629,12 +618,13 @@ def check_projeto(request, url):
 def projeto(request, url, purl):
     user = request.user
     url = get_object_or_404(Url, nome=url)
+    perfil, perfil_tipo = get_perfil(url)
     projeto = get_object_or_404(Projeto, perfil=url, url=purl)
     tags = projeto.tags.all()
     links = projeto.links.all()
     editor = True
-    
-    if (url.user and user != url.user) or (url.grupo and user not in url.grupo.u0.all()):
+
+    if (perfil_tipo=='user' and user != perfil) or (perfil_tipo=='grupo' and user not in perfil.u0.all()):
         if not projeto.publico:
             raise Http404("projeto privado")
         editor = False
@@ -643,7 +633,7 @@ def projeto(request, url, purl):
     context = {
         'item': projeto,
         'url': url,
-        'perfil': get_perfil(url),
+        'perfil': perfil,
         'tags': tags,
         'links': links,
         'editor': editor,
@@ -656,7 +646,9 @@ def projeto(request, url, purl):
 def projeto_edit(request, url, purl, ativo='perfil'):
     user = request.user
     url = get_object_or_404(Url, nome=url)
-    if (url.user and user != url.user) or (url.grupo and user not in url.grupo.u0.all()):
+    perfil, perfil_tipo = get_perfil(url)
+
+    if (perfil_tipo == 'user' and user != perfil) or (perfil_tipo == 'grupo' and user not in perfil.u0.all()):
         raise PermissionDenied
 
     projeto = get_object_or_404(Projeto, perfil=url, url=purl)
@@ -665,7 +657,7 @@ def projeto_edit(request, url, purl, ativo='perfil'):
 
     context = {
         'url': url,
-        'perfil': get_perfil(url),
+        'perfil': perfil,
         'item': projeto,
         'ativo': ativo,
         'menu': menu,
@@ -882,20 +874,21 @@ def projeto_edit_equipe(request, url, purl):
 def projeto_visibilidade(request, url, purl):
     url = get_object_or_404(Url, nome=url)
     projeto = get_object_or_404(Projeto, perfil=url, url=purl)
+    perfil, perfil_tipo = get_perfil(url)
+
     template = request.POST.get('template')
 
     projeto.mudar_visibilidade()
     
     # atualiza o d1 dos adms
     if projeto.publico:
-        perfil = get_perfil(url)
         perfil.save()
     
     context = {
         'tipo': 'projeto',
         'item': projeto,
         'url': url,
-        'perfil': get_perfil(url),
+        'perfil': perfil,
         'n': request.POST.get('n'),
         'extra': 'edit',
     }

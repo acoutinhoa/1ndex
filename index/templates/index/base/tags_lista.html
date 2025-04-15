@@ -4,7 +4,7 @@
     {% for item in lista %}
         <div class="btn mr mt2 row">
             <div 
-                class="mr4 {% if not item.publico %}c2{% endif %} {% if not titulo %}h3 c1 link2 {% else %}link{% endif %}" 
+                class="mr4 {% if not item.publico %}c2{% endif %} {% if not titulo and tipo != 'projeto' %}h3 c1 link2 {% else %}link{% endif %}" 
             {% if tag_tipo == 'remove' %}
                 hx-delete="{% url 'index:projeto-remove-tag' url=url purl=projeto.url tag=item.id %}" 
                 hx-target="#content">

@@ -7,15 +7,15 @@
 {% endif %}
 
 <input type="hidden" name="template" value="index/base/_index.html" id="index_template" />
-<div class="btn ml2 fr {% if item.publico %}c1{% else %}c2{% endif %}">
-    [<span
-        class="link {% if item.publico %}c2{% endif %}" 
-        hx-post="{{ link }}"
-        hx-target="#index"
-        hx-include="#index_template" >
-        {% if item.publico %}privatizar{% else %}publicar{% endif %}
-    </span>]
-</div>
-<div class="btn ml fr txtr {% if item.publico %}c1{% else %}c2{% endif %}">
-    {{ tipo }} {% if item.publico %}público{% else %}privado{% endif %}
+<div class="row wrap end">
+    <div class="btn wa {% if item.publico %}c1{% else %}c2{% endif %}">{{ tipo }} {% if item.publico %}público{% else %}privado{% endif %}</div>
+    <div class="btn wa ml2">
+        [<span
+            class="link {% if item.publico %}c2{% endif %}" 
+            hx-post="{{ link }}"
+            hx-target="#index"
+            hx-include="#index_template" >
+            {% if item.publico %}privatizar{% else %}publicar{% endif %}
+        </span>]
+    </div>
 </div>

@@ -4,13 +4,13 @@
 <div class="linha fina mt1"></div>
 <div id="tags_perfil">
     {% set url.get_absolute_url as perfil_url %}
-    {% include 'index/base/lista_tags.html' with lista=tags_perfil tag_tipo='add' titulo=projeto.perfil %}
+    {% include 'index/base/tags_lista.html' with lista=tags_perfil tag_tipo='add' titulo=projeto.perfil %}
 </div>
     
 <div class="linha fina mt"></div>
 <div id="tags_index">
     {% url 'index:index' as perfil_url %}
-    {% include 'index/base/lista_tags.html' with lista=tags_index tag_tipo='add' titulo='1ndex' %}
+    {% include 'index/base/tags_lista.html' with lista=tags_index tag_tipo='add' titulo='1ndex' %}
 </div>
 {% endif %}
 

@@ -9,6 +9,8 @@ from django.utils.text import slugify
 from datetime import datetime
 
 Pronome = models.TextChoices("Pronome", "ELA ELE NENHUM QUALQUER_UM")
+url_proibidas = ['htmx', 'admin', 'accounts', 'invite', 'edit', 'add', 'delete','tag'] 
+
 
 class Link(models.Model):
     nome = models.CharField(max_length=39)
@@ -16,6 +18,7 @@ class Link(models.Model):
 
     def __str__(self):
         return str(self.nome)
+
 
 class Base(models.Model):
     d0 = models.DateTimeField(auto_now_add=True)
@@ -30,6 +33,7 @@ class Base(models.Model):
     class Meta:
         abstract = True
         ordering = ['-d1']
+
 
 class User(AbstractUser, Base):
     # edita fields do djando
@@ -47,7 +51,7 @@ class User(AbstractUser, Base):
 
     def clean(self):
         super().clean()
-        if Url.objects.filter(nome=self.username).exclude(user=self).exists():
+        if self.username in url_proibidas or Url.objects.filter(nome=self.username).exclude(user=self).exists():
             raise ValidationError("Este codinome não está disponível.")
 
     def save(self, *args, **kwargs):
@@ -56,14 +60,13 @@ class User(AbstractUser, Base):
             self.full_clean()  # verifica se a Url existe
         super().save(*args, **kwargs)       
         if novo:
-            Url.objects.create(user=self, nome=self.username, ) # define url do user
+            Url.objects.create(nome=self.username, user=self) # define url do user
 
     def get_absolute_url(self):
         return reverse('index:perfil', kwargs={'url': self.url})
 
     def __str__(self):
         return str(self.username)
-
 
 class Grupo(Base):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -84,19 +87,27 @@ class Grupo(Base):
     def save(self, *args, **kwargs):
         novo = self._state.adding
         super().save(*args, **kwargs)
-        
         if novo:
-            Url.objects.create(grupo=self, nome=self.define_url(), ) # define url do grupo
+            Url.objects.create(nome=self.define_url(), grupo=self) # define url do grupo
+        
 
     def get_absolute_url(self):
         return reverse('index:perfil', kwargs={'url': self.url})
 
-            
+
 class Url(models.Model):
     nome = models.CharField(max_length=91, validators=[UnicodeUsernameValidator()], unique=True, verbose_name='codinome')
-    user = models.OneToOneField(User, on_delete=models.CASCADE, blank=True, null=True,)
-    grupo = models.OneToOneField(Grupo, on_delete=models.CASCADE, blank=True, null=True,)
-    sistema = models.BooleanField(default=False)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, blank=True, null=True)
+    grupo = models.OneToOneField(Grupo, on_delete=models.CASCADE, blank=True, null=True)
+
+    def clean(self):
+        super().clean()
+        if self.nome in url_proibidas:
+            raise ValidationError("Este codinome não está disponível.")
+
+    def save(self, *args, **kwargs):
+        self.full_clean()  # verifica se a url é permitida
+        super().save(*args, **kwargs)       
 
     def __str__(self):
         return str(self.nome)
@@ -125,6 +136,7 @@ class Convite(models.Model):
     def get_absolute_url(self):
         return reverse('index:convite', kwargs={'pk': self.pk})
 
+
 class Tag(models.Model):
     nome = models.CharField(max_length=39)
     publico = models.BooleanField(default=True)
@@ -143,7 +155,7 @@ class Projeto(Base):
     u0 = models.ForeignKey(User, on_delete=models.CASCADE) # >>>>>>>>>>>>> definir o on_delete
     texto = models.TextField(blank=True, null=True)
     publico = models.BooleanField(default=False)
-    perfil = models.ForeignKey(Url, on_delete=models.CASCADE, related_name='projetos')
+    perfil = models.ForeignKey(Url, on_delete=models.CASCADE, related_name='projetos', blank=True, null=True)
     tags = models.ManyToManyField(Tag, related_name='projetos')
     ano = models.PositiveSmallIntegerField(blank=True, null=True, validators=[MinValueValidator(1900), MaxValueValidator(2100)], default=datetime.today().year)
     url = models.SlugField(max_length=119)

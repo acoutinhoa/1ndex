@@ -1,0 +1,14 @@
+<div id="tags">
+    {% include 'index/base/tags_lista.html' with lista=item.tags.all tipo="projeto" %}
+</div>
+
+<div id="titulo" class="mt1 mb">
+    <a class="link2 h1 mr {% if item.publico %}c1{% else %}c2{% endif %}" href="{{ item.get_absolute_url }}">{{ item.nome }}</a>
+    {% if request.user.url == item.perfil %}[<a class="link c2" href="{% url 'index:projeto-edit' url=item.perfil purl=item.url %}">editar</a>]{% endif %}
+</div>
+
+
+<div id="info" class="legenda c1">
+    editado: {{ item.d1|timesince }}<br>
+    perfil: <a class="link" href="{{ item.perfil.get_absolute_url }}">{{ item.perfil }}</a><br>
+</div>

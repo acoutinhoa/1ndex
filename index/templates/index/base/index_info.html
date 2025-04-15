@@ -23,23 +23,15 @@
     <p class="mt">{{ item.info|linebreaksbr }}</p>
     {% endif %}
 
-    {% if tipo == 'projeto' %}
+    {% comment %} {% if tipo == 'projeto' %}
     <!-- tags -->
     <div class="linha2 fina mt"></div>
-    <div class="c1 mt">tags [{{ tags.count|default:0 }}]<br></div>
-    <div id="tags">
-        {% for t in tags %}
-        <a href="{{ t.get_absolute_url }}"><div class="link btn">{{ t }}</div></a>
-        {% endfor %}
-    </div>
-    {% endif %}
+    {% include 'index/base/index_lista.html' with titulo='tags' lista=tags %}
+    {% endif %} {% endcomment %}
 
     {% if links %}
     <!-- links -->
     <div class="linha2 fina mt"></div>
-    <p class="c1 mt">links externos [{{ links.count }}]</p>
-    {% for l in links %}
-    <a href="{{ l.url }}" target="blank"><div class="link btn">{{ l.nome }}</div></a>
-    {% endfor %}
+    {% include 'index/base/index_lista.html' with titulo='links' lista=links %}
     {% endif %}
 </div>

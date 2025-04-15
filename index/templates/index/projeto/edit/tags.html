@@ -2,7 +2,7 @@
 
 {% if tags %}
 {% set projeto.get_absolute_url as perfil_url %}
-{% include 'index/base/lista_tags.html' with lista=tags tag_tipo='remove' titulo=projeto %}
+{% include 'index/base/tags_lista.html' with lista=tags tag_tipo='remove' titulo=projeto %}
 
 
 <div class="linha"></div>
