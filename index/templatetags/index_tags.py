@@ -75,6 +75,21 @@ def tempo_desde(data):
 	return txt
 
 @register.filter
-def count_projetos(qs, id):
-	qs = qs.filter(tags__id=id)
-	return qs.count()
+def url_tags_add(tag, lista):
+	path=''
+	if lista:
+		for item in lista:
+			path += f'{item.id}+'
+	path += str(tag.id)
+	return path
+
+@register.filter
+def url_tags_remove(tag, lista):
+	lista = lista.exclude(id=tag.id)
+	if lista:
+		path=''
+		for item in lista:
+			path += f'{item.id}+'
+		return path[:-1] # remove o ultimo '+'
+	else:
+		return 'None'

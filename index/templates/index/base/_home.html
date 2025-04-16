@@ -6,10 +6,14 @@
 
 {% block main %}
     {% if tipo == 'projeto' %}
-    <div id="content" class="content margem flow ">
+    <div id="main" class="content margem flow ">
         {% include 'index/projeto/projeto.html'  %}
     </div>
     {% else %}
-    {% include 'index/base/_main.html'  %}
+    <div 
+        hx-get="{% if url %}{% url 'index:tags-perfil' url=url filtros=filtros %}{% else %}{% url 'index:tags-index' filtros=filtros %}{% endif %}"
+        hx-target=this
+        hx-trigger="load" 
+        hx-swap="outerHTML"></div>
     {% endif %}
 {% endblock %}

@@ -1,28 +1,62 @@
+{% load index_tags %}
+
 {% if titulo %}<h3 class="mt mr">tags <a href="{{ perfil_url }}" class="link2">{{ titulo }}</a> <span class="c0">[{{lista.count}}]</span></h3>{% endif %}
 
 <div class="row wrap baseline">
     {% for item in lista %}
+        {% if item.publico or editor %}
         <div class="btn mr mt2 row">
-            <div 
-                class="mr4 {% if not item.publico %}c2{% endif %} {% if not titulo and tipo != 'projeto' %}h3 c1 link2 {% else %}link{% endif %}" 
+            
             {% if tag_tipo == 'remove' %}
+            <div 
+                class="mr4 link {% if not item.publico %}c2{% endif %}" 
                 hx-delete="{% url 'index:projeto-remove-tag' url=url purl=projeto.url tag=item.id %}" 
                 hx-target="#content">
                 {{ item }}</div> <span class="c2 legenda">(-)</span>
+            
             {% elif tag_tipo == 'add' %}
+            <div 
+                class="mr4 link {% if not item.publico %}c2{% endif %}" 
                 hx-post="{% url 'index:projeto-add-tag' url=url purl=projeto.url tag=item.id %}" 
                 hx-target="#content">
                 {{ item }}</div> <span class="c1 legenda">(+)</span>
-            {% elif tipo == 'projeto' %}
-                {% comment %} hx-post="{% url 'index:projeto-add-tags' url=url purl=projeto.url tag=item.id %}"  {% endcomment %}
-                hx-target="#content">
-                {{ item }}</div>
-            {% else %}
-                {% comment %} hx-post="{% url 'index:projeto-add-tags' url=url purl=projeto.url tag=item.id %}"  {% endcomment %}
-                hx-target="#content">
+            
+            {% elif tag_tipo == 'main+' %}
+            {% set item|url_tags_add:filtros as filtro %}
+            <div 
+                class="mr4 h3 c1 link2 {% if not item.publico %}c2{% endif %}" 
+                hx-post="{% if url %}{% url 'index:tags-perfil' url=url filtros=filtro %}{% else %}{% url 'index:tags-index' filtros=filtro %}{% endif %}"
+                hx-push-url="{% if url %}{% url 'index:perfil-tags' url=url filtros=filtro %}{% else %}{% url 'index:index-tags' filtros=filtro %}{% endif %}"
+                hx-target="#main">
                 {{ item }}</div> <span class="legenda">[{{ item.projetos__count }}]</span>
+            
+            {% elif tag_tipo == 'main-' %}
+            {% set item|url_tags_remove:filtros as filtro %}
+            <div 
+                class="mr4 h2 c0 link2 {% if not item.publico %}c2{% endif %}" 
+                hx-post="{% if url %}{% url 'index:tags-perfil' url=url filtros=filtro %}{% else %}{% url 'index:tags-index' filtros=filtro %}{% endif %}"
+                {% if filtro == 'None' %}
+                hx-push-url="{% if url %}{% url 'index:perfil' url=url %}{% else %}{% url 'index:index' %}{% endif %}"
+                {% else %}
+                hx-push-url="{% if url %}{% url 'index:perfil-tags' url=url filtros=filtro %}{% else %}{% url 'index:index-tags' filtros=filtro %}{% endif %}"
+                {% endif %}
+                hx-target="#main">
+                {{ item }}</div> <span class="c2 legenda">(x)</span>
+
+            {% elif tipo == 'projeto' %}
+            <div 
+                class="mr4 legenda link {% if not item.publico %}c2{% endif %}" 
+                hx-post="{% url 'index:perfil-tags' url=url filtros=item.id %}"
+                hx-push-url="true"
+                hx-target="#body">
+                {{ item }}</div>
+            
+            {% else %}
+            <div class="mr4 legenda {% if not item.publico %}c2{% endif %}" >
+                {{ item }}</div>
             {% endif %}
+        
         </div>
+        {% endif %}
     {% endfor %}
 </div>
-    

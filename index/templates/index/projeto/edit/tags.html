@@ -1,5 +1,7 @@
 {% load index_tags %}
 
+{% set 'True'  as editor %}
+
 {% if tags %}
 {% set projeto.get_absolute_url as perfil_url %}
 {% include 'index/base/tags_lista.html' with lista=tags tag_tipo='remove' titulo=projeto %}

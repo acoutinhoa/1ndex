@@ -85,7 +85,6 @@ def index(request, url=None, filtros=None):
     if url:
         url = get_object_or_404(Url, nome=url)
         perfil, tipo = get_perfil(url)
-        tags = Tag.objects.filter(projetos__perfil=url).distinct()
         
         if tipo == 'user':
             if not perfil.is_active:
@@ -108,7 +107,6 @@ def index(request, url=None, filtros=None):
         if not editor:
             pessoas = pessoas.filter(is_active=True)
             projetos = projetos.filter(publico=True)
-            tags = tags.exclude(publico=False)
             if grupos:
                 grupos = grupos.filter(publico=True)
 
@@ -120,10 +118,7 @@ def index(request, url=None, filtros=None):
         pessoas = User.objects.filter(is_active=True)
         grupos = Grupo.objects.filter(publico=True)
         projetos = Projeto.objects.filter(publico=True)
-        tags = Tag.objects.filter(publico=True)
     
-    tags = tags.filter(projetos__id__in=projetos).annotate(Count("projetos")).order_by('-projetos__count', 'nome')
-
     context = {
         'url': url,
         'item': perfil,
@@ -133,10 +128,51 @@ def index(request, url=None, filtros=None):
         'grupos': grupos,
         'projetos': projetos,
         'links': links,
-        'tags': tags,
         'filtros': filtros,
     }
     return render(request, 'index/base/_home.html', context)
+
+def tags(request, filtros, url=None):
+    user = request.user
+    editor = False
+    tags = Tag.objects.all()
+    projetos = Projeto.objects.all()
+
+    if filtros == 'None':
+        filtros = None
+    else:
+        filtros = filtros.split('+')
+        filtros = tags.filter(id__in=filtros)
+        tags = tags.exclude(id__in=filtros)
+        for tag in filtros:
+            projetos = projetos.filter(tags=tag)
+
+    if url:
+        url = get_object_or_404(Url, nome=url)
+        projetos = projetos.filter(perfil=url)
+        
+        perfil, tipo = get_perfil(url)
+        if (tipo == 'user' and user == perfil) or (tipo == 'grupo' and user in perfil.u0.all()):
+            editor = True
+    else:
+        url = None
+        
+    if not editor:
+        projetos = projetos.filter(publico=True)
+        tags = tags.filter(publico=True)
+    
+    tags = tags.filter(projetos__id__in=projetos).annotate(Count("projetos")).order_by('-projetos__count', 'nome')
+
+    context = {
+        'url': url,
+        'editor': editor,
+        'projetos': projetos,
+        'tags': tags,
+        'filtros': filtros,
+    }
+    return render(request, 'index/base/_main.html', context)
+
+
 
 # edit home
 @login_required

@@ -1,14 +1,29 @@
-<div class="c1 mt">
+<div class="mb2 {% if titulo == 'links' %}mt{% endif %}">
     {% if titulo == 'pessoas' %}{% if tipo == 'user' %}fi1hos{% elif tipo == 'grupo' %}adms{% else %}pessoas{% endif %}{% else %}{{ titulo }}{% endif %} [{{ lista.count|default:0 }}]
 </div>
-<div id="{{ titulo }}">
+
+<ol id="{{ titulo }}" class="lista2">
+    {% for item in lista %}
+    <li>
+        {% if titulo == 'links' %}
+        <a href="{{ item.url }}" target="blank"
+        {% else %}
+        <a href="{{ item.get_absolute_url }}"
+        {% endif %}
+            class="link2 b {% if titulo in 'grupos,projetos' and not item.publico %}c2{% else %}c1{% endif %}">
+            {{ item }}
+        </a>
+    </li>
+    {% endfor %}
+</ol>
+{% comment %} <div id="{{ titulo }}">
     {% for item in lista %}
         {% if titulo == 'links' %}
         <a href="{{ item.url }}" target="blank">
         {% else %}
         <a href="{{ item.get_absolute_url }}">
         {% endif %}
-            <div class="link btn {% if titulo != 'pessoas' and not item.publico %}c2{% endif %}">{{ item }}</div>
+            <div class="link2 btn wa {% if titulo != 'pessoas' and not item.publico %}c2{% endif %}">{{ item }}</div>
         </a>
     {% endfor %}
-</div>
+</div> {% endcomment %}

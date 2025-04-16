@@ -1,8 +1,9 @@
 
 <div id="tags" class="tags margem flow">
-    {% include 'index/base/tags_lista.html' with lista=tags  %}
+    {% if filtros %}{% include 'index/base/tags_lista.html' with lista=filtros tag_tipo='main-'  %}{% endif %}
+    {% include 'index/base/tags_lista.html' with lista=tags tag_tipo='main+'  %}
 </div>
 
-<div id="content" class="flow">
+<div id="content" class="content margem flow ">
     {% include "index/base/projetos.html" %}
 </div>

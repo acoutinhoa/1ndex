@@ -9,7 +9,7 @@ from django.utils.text import slugify
 from datetime import datetime
 
 Pronome = models.TextChoices("Pronome", "ELA ELE NENHUM QUALQUER_UM")
-url_proibidas = ['htmx', 'admin', 'accounts', 'invite', 'edit', 'add', 'delete','tag'] 
+url_proibidas = ['htmx', 'admin', 'accounts', 'invite', 'edit', 'add', 'delete','tags'] 
 
 
 class Link(models.Model):

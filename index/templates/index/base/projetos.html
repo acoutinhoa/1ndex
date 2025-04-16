@@ -1,7 +1,8 @@
 {% comment %} <h3>projetos <span class="c1">[{{ projetos.count|default:0}}]</span></h3> {% endcomment %}
 
 {% for item in projetos %}
-<div  class="content margem flow projeto {% if not forloop.last %}bb0{% endif %}" id="projeto-{{ item.id }}">
+<div  class="flow projeto" id="projeto-{{ item.id }}">
     {% include 'index/projeto/projeto.html' %}
 </div>
+{% if not forloop.last %}<div class="linha"></div>{% endif %}
 {% endfor %}
