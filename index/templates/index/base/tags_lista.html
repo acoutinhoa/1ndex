@@ -1,11 +1,11 @@
 {% load index_tags %}
 
-{% if titulo %}<h3 class="mt mr">tags <a href="{{ perfil_url }}" class="link2">{{ titulo }}</a> <span class="c0">[{{lista.count}}]</span></h3>{% endif %}
+{% if titulo %}<h3 class="mt mr mb2">tags <a href="{{ perfil_url }}" class="link2">{{ titulo }}</a> <span class="c0">[{{lista.count}}]</span></h3>{% endif %}
 
 <div class="row wrap baseline">
     {% for item in lista %}
         {% if item.publico or editor %}
-        <div class="btn mr mt2 row">
+        <div class="btn mr row">
             
             {% if tag_tipo == 'remove' %}
             <div 
@@ -21,10 +21,18 @@
                 hx-target="#content">
                 {{ item }}</div> <span class="c1 legenda">(+)</span>
             
+            {% elif tipo == 'projeto' %}
+            <div 
+                class="b link2 {% if not item.publico %}c2{% else %}c1{% endif %}" 
+                hx-post="{% url 'index:perfil-tags' url=url filtros=item.id %}"
+                hx-push-url="true"
+                hx-target="#body">
+                {{ item }}</div>
+            
             {% elif tag_tipo == 'main+' %}
             {% set item|url_tags_add:filtros as filtro %}
             <div 
-                class="mr4 h3 c1 link2 {% if not item.publico %}c2{% endif %}" 
+                class="mr4 b link2 {% if not item.publico %}c2{% else %}c1{% endif %}" 
                 hx-post="{% if url %}{% url 'index:tags-perfil' url=url filtros=filtro %}{% else %}{% url 'index:tags-index' filtros=filtro %}{% endif %}"
                 hx-push-url="{% if url %}{% url 'index:perfil-tags' url=url filtros=filtro %}{% else %}{% url 'index:index-tags' filtros=filtro %}{% endif %}"
                 hx-target="#main">
@@ -33,7 +41,7 @@
             {% elif tag_tipo == 'main-' %}
             {% set item|url_tags_remove:filtros as filtro %}
             <div 
-                class="mr4 h2 c0 link2 {% if not item.publico %}c2{% endif %}" 
+                class="mr4 b link2 {% if not item.publico %}c2{% else %}c0{% endif %}" 
                 hx-post="{% if url %}{% url 'index:tags-perfil' url=url filtros=filtro %}{% else %}{% url 'index:tags-index' filtros=filtro %}{% endif %}"
                 {% if filtro == 'None' %}
                 hx-push-url="{% if url %}{% url 'index:perfil' url=url %}{% else %}{% url 'index:index' %}{% endif %}"
@@ -43,16 +51,8 @@
                 hx-target="#main">
                 {{ item }}</div> <span class="c2 legenda">(x)</span>
 
-            {% elif tipo == 'projeto' %}
-            <div 
-                class="mr4 legenda link {% if not item.publico %}c2{% endif %}" 
-                hx-post="{% url 'index:perfil-tags' url=url filtros=item.id %}"
-                hx-push-url="true"
-                hx-target="#body">
-                {{ item }}</div>
-            
             {% else %}
-            <div class="mr4 legenda {% if not item.publico %}c2{% endif %}" >
+            <div class="legenda {% if not item.publico %}c2{% endif %}" >
                 {{ item }}</div>
             {% endif %}
         

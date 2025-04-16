@@ -1,6 +1,8 @@
+{% if not tipo == 'projeto' %}
 <div id="tags">
     {% include 'index/base/tags_lista.html' with lista=item.tags.all %}
 </div>
+{% endif %}
 
 <div id="titulo" class="mt1 mb">
     <a class="link2 h1 mr {% if item.publico %}c1{% else %}c2{% endif %}" href="{{ item.get_absolute_url }}">{{ item.nome }}</a>
