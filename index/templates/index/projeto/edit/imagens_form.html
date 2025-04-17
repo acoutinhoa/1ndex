@@ -10,110 +10,69 @@
     enctype='multipart/form-data'
     hx-post="{{ post }}" 
     hx-target='#imagens-form'
-    {% comment %} hx-trigger="keyup chaged delay:2s, change" {% endcomment %}
+    hx-trigger="keyup chaged delay:1s, change"
     autocomplete="off">
     {{ formset.management_form }}
-    
+
     <input type="hidden" name="redirect" value="{{ post }}" />
-    <input type="hidden" name="template" value="true" />
-
     
-
-
-    <ol class="lista2">
+    <ol class="lista">
         {% for form in formset %}
         {{ form.id }}
-
-        {% if form.id.value %}
         {% get_imagem imagens form.id.value as imagem %}
-        {% else %}
-        {% set '' as imagem %}
-        {% endif %}
         
-        <div id="link-{{ forloop.counter }}" class="row w80 mt1" style="align-items: flex-start;">
-            <div class="row wrap {% if imagem %}w60{% else %}w100{% endif %}">
-                
-                {% if imagem %}
+        <div id="img-{{ imagem.id }}" class="row mt1" style="align-items: flex-start;">
+            <div class="row wrap w50">
+                <!-- info -->
                 <li class="h3">{{ imagem.nome }}</li>
                 
                 <div class="legenda c1 w100 mb">
-                    largura: {{ imagem.imagem.width|intcomma }} px<br>
-                    altura: {{ imagem.imagem.height|intcomma }} px<br>
-                    tamanho: {{ imagem.imagem.size|filesizeformat }} <br>
+                    {{ imagem.imagem.width|intcomma }} x {{ imagem.imagem.height|intcomma }}  px<br>
+                    {{ imagem.imagem.size|filesizeformat }} <br>
                 </div>
-                {% endif %}
 
+                <!-- form -->
                 {% if form.non_field_errors %}<div class="legenda b c2 mb w100">{{ form.non_field_errors }}</div>{% endif %}
-
+                
                 {% for field in form.visible_fields %}
-                
-                {% if field.name in 'capa,carrossel' %}
-                <div class="wa mr2">{{ field }}</div>
-                <div class="{% if not imagem %}c2{% else %}c1{% endif %} mr1">{{ field.name }}</div>
-                {% if field.errors %}<div class="legenda c2 mb2">{{ field.errors }}</div>{% endif %}
-                
-                {% elif field.name == 'imagem' %}
-                {% render_field field type="hidden" %}
-
-                {% else %}       
-                <div class="{% if not imagem %}c2{% else %}c1{% endif %}">{% if field.name == 'imagem' and imagem %}modificar {% endif %}{{ field.name }}</div>
-                {{ field }}
-                {% if field.errors %}<div class="legenda c2 mb2">{{ field.errors }}</div>{% endif %}
-
-                {% endif %}
-                {% endfor %}
-
-
-                {% comment %} {% for field in form.visible_fields %}
-                
-                {% if imagem %}
-                    {% if field.name == 'imagem' %}
-                    {% render_field field type="hidden" %}
-
-                    {% elif field.name == 'nome' %}
+                {% if field.name == 'nome' %}
                     <div class="c1">{{ field.name }}</div>
                     {{ field }}
-
-                    {% elif field.name in 'capa carrossel' %}       
+                {% else %}       
                     <div class="wa mr2">{{ field }}</div>
-                    <div class="{% if not imagem %}c2{% else %}c1{% endif %} mr1">{{ field.name }}</div>
-
-                    {% endif %}
-                {% else %}
-                    {% if field.name == 'imagem' %}
-                    <div class="c2 h3">nova imagem</div>
-                    {{ field }}
-
-                    {% else %}       
-                    {% render_field field type="hidden" %}
-
-                    {% endif %}
+                    <div class="c1 mr1">{{ field.name }}</div>
                 {% endif %}
-
                 {% if field.errors %}<div class="legenda c2 mb2">{{ field.errors }}</div>{% endif %}
-
-                {% endfor %} {% endcomment %}
-
+                {% endfor %}
 
                 {% if imagem in atualizado %}
                 {% include 'index/base/msg.html' with tipo='clear' class='legenda mt mb2 w100' tempo='4' msg='imagem atualizada' %}
                 {% endif %}
             </div>
 
-            {% if imagem %}
-            <div class="w40 ml1">
+            <!-- imagem -->
+            <div class="w30 ml1">
                 <a href="{{ imagem.imagem.url }}" target="blank"><img src="{{ imagem.imagem.url }}" alt="{{ imagem.nome }}"></a>
             </div>
-            {% endif %}
-        </div>
 
+            <!-- delete -->
+            <div 
+                class="link btn ml c2"
+                hx-delete="{% url 'index:delete-imagem' pk=imagem.pk %}"
+                hx-target="#img-{{ imagem.id }}"
+                hx-confirm="tem certeza que deseja deletar a imagem '{{ imagem.nome }}'?"
+                hx-include="[name='redirect']"
+                hx-swap="outerHTML">
+                deletar
+            </div>
+        </div>
         {% if not forloop.last %}<div class="linha fina mt"></div>{% endif %}
         {% endfor %}
     </ol>
-    <input 
+    {% comment %} <input 
         type="submit" 
         class="link btn c2 center" 
-        value="salvar" />
+        value="salvar" /> {% endcomment %}
 </form>
 
 

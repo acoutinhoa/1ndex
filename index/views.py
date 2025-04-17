@@ -900,72 +900,45 @@ def projeto_edit_texto(request, url, purl):
 def projeto_edit_imagens(request, url, purl):
     url = get_object_or_404(Url, nome=url)
     projeto = get_object_or_404(Projeto, perfil=url, url=purl)
-    imagens = projeto.imagens.all()
     atualizado = []
-    template = 'index/projeto/edit/imagens.html'
 
     if request.method == "POST":
         formset = ImagensFormSet(request.POST, request.FILES, instance=projeto, prefix='imagem')
         if formset.is_valid():
-            atualizado = formset.save(commit=False)
-            for img in atualizado:
-                if img not in imagens:
-                    img.projeto = projeto
-                img.save()
+            atualizado = formset.save()
             formset = ImagensFormSet(instance=projeto, prefix='imagem')
         template = 'index/projeto/edit/imagens_form.html'
+        form = None
+    
     else:
         formset = ImagensFormSet(instance=projeto, prefix='imagem')
+        form = ImagemForm(prefix='nova_imagem')
+        template = 'index/projeto/edit/imagens.html'
     
     context = {
         'formset': formset,
-        'imagens': imagens,
+        'form': form,
+        'imagens': projeto.imagens.all(),
         'atualizado': atualizado,
         'post': reverse('index:projeto-edit-imagens', kwargs={'url': url, 'purl':purl,}),
+        'add': reverse('index:projeto-add-imagem', kwargs={'url': url, 'purl':purl}),
     }
     return render(request, template, context)
-
-# # edit imagens
-# def projeto_edit_imagens(request, url, purl):
-#     url = get_object_or_404(Url, nome=url)
-#     projeto = get_object_or_404(Projeto, perfil=url, url=purl)
-#     imagens = projeto.imagens.all()
-#     atualizado = []
-
-#     if request.method == "POST":
-#         formset = ImagensFormSet(request.POST, request.FILES, queryset=imagens, prefix='imagens')
-#         if formset.is_valid():
-#             atualizado = formset.save()
-#             formset = ImagensFormSet(queryset=projeto.imagens.all(), prefix='imagens')
-#         template = 'index/projeto/edit/imagens_form.html'
-#         # form = ''
-    
-#     else:
-#         formset = ImagensFormSet(queryset=imagens, prefix='imagens')
-#         # form = ImagemForm(instance=projeto, prefix='nova_imagem')
-#         template = 'index/projeto/edit/imagens.html'
-    
-    # context = {
-    #     # 'form': form,
-    #     'formset': formset,
-    #     'imagens': imagens,
-    #     'atualizado': atualizado,
-    #     'post': reverse('index:projeto-edit-imagens', kwargs={'url': url, 'purl':purl,}),
-    #     'add': reverse('index:projeto-add-imagem', kwargs={'url': url, 'purl':purl}),
-    # }
-    # return render(request, template, context)
 
 # edit imagens add
 def projeto_add_imagem(request, url, purl):
     url = get_object_or_404(Url, nome=url)
     projeto = get_object_or_404(Projeto, perfil=url, url=purl)
 
-    form = ImagemForm(request.POST, request.FILES, instance=projeto, prefix='nova_imagem')
+    form = ImagemForm(request.POST, request.FILES, prefix='nova_imagem')
     if form.is_valid():
-        form.save()
+        novo = form.save(commit=False)
+        novo.projeto = projeto
+        novo.save()
 
         context = {
             'msg': f'nova imagem adicionada ao projeto <b>{ projeto.nome }</b>',
+            'class': 'legenda mt',
             'redirect': reverse('index:projeto-edit-imagens', kwargs={'url': url, 'purl': projeto.url}),
         }
         return render(request, 'index/base/msg.html', context)
@@ -980,12 +953,13 @@ def projeto_add_imagem(request, url, purl):
 @require_http_methods(['DELETE'])
 def delete_imagem(request, pk):
     imagem = get_object_or_404(Imagem, pk=pk)
+    imagem.imagem.delete()
     imagem.delete()
 
     context = {
         'msg': f'imagem <b>{ imagem.nome }</b> excluida',
         'redirect': request.GET.get('redirect'),
-        'class': 'legenda mt2 mb2',
+        'class': 'legenda mt mb2',
     }
     return render(request, 'index/base/msg.html', context)
 

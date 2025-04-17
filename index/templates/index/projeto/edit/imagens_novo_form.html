@@ -6,19 +6,16 @@
     method="POST"
     enctype='multipart/form-data'
     hx-post="{{ add }}" 
-    hx-target='#nova-imagem-form'
+    hx-target=this
+    hx-trigger="change"
     autocomplete="off">
-    {{ form.management_form }}
-    
-    {% for f in form %}
-    {{ f.id }}
-    {{ f.imagem }}
+    {% csrf_token %}
+
+    {{ form.imagem }}
     {% if form.imagem.errors %}<div class="legenda c2 mb2 w100">{{ form.imagem.errors }}</div>{% endif %}
-    {% endfor %}
 
-
-    <input 
+    {% comment %} <input 
         type="submit" 
         class="link btn c2 center" 
-        value="salvar" />
+        value="salvar" /> {% endcomment %}
 </form>

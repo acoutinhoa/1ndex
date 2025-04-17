@@ -196,17 +196,19 @@ class Imagem(models.Model):
     def __str__(self):
         return str(self.nome)
 
-    def clean(self):
-        super().clean()
-        if Imagem.objects.filter(projeto=self.projeto, nome=self.nome).exclude(id=self.id).exists():
-            raise ValidationError("este nome de imagem já existe neste projeto")
+    # def clean(self):
+    #     super().clean()
+    #     if Imagem.objects.filter(projeto=self.projeto, nome=self.nome).exclude(id=self.id).exists():
+    #         raise ValidationError("este nome de imagem já existe neste projeto")
 
     def save(self, *args, **kwargs):
-        self.full_clean()  # verifica se o nome é unico por projeto
+        # if not self._state.adding: 
+        #     self.full_clean()  # verifica se o nome é unico por projeto
+        if self.nome and Imagem.objects.filter(projeto=self.projeto, nome=self.nome).exclude(id=self.id).exists():
+            self.nome = f'{self.nome}-{self.pk}'
         super().save(*args, **kwargs)
         if not self.nome:
-            # self.nome = self.imagem.name.split('/')[-1][:39]
-            self.nome = f'imagem-{self.pk}'
+            self.nome = f'img-{self.pk}'
             self.save()  # salva o nome da imagem
 
     class Meta:

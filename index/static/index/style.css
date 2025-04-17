@@ -183,13 +183,17 @@ a, a:link, a:visited, a:hover {
 /* list */
 
 ul {list-style-type: '_'; color: inherit;}
-ol {margin-left: 9px; color: inherit;}
+ol {margin-left: 0; color: inherit;}
 ol.lista2 {margin-left: 0; color: inherit;}
+
+ol.lista3 {margin-left: 9px; color: inherit;}
+ol.lista3 li {margin-left: 19px;}
 
 li {
     color: inherit;
     padding-top: 9px;
-    margin-left: 19px;
+    margin-left: 0;
+    /* margin-left: 19px; */
 }
 
 
@@ -216,11 +220,10 @@ input:focus, textarea:focus, select:focus {
     border-color: var(--c2);
 }
 
-input[type="file"] {
-    font-size: 0.8em;
-}
+/* input[type="file"] {} */
 
 input[type="file"]::file-selector-button {
+    font-size: 0.8em;
     background-color: transparent;
     color: var(--c1);
     padding: 1px 9px;
@@ -318,7 +321,7 @@ label {
 
 .margem {padding: 39px 91px 49px;}
 .margem2 {padding: 19px 39px 29px;}
-.margem3 {padding: 19px 19px;}
+.margem3 {padding: 19px 0;}
 
 .linha {margin:39px -91px; border-bottom: solid rgb(255,0,255) var(--b); height: 0;}
 .linha2 {margin:19px -39px; border-bottom: solid rgb(0,255,255) var(--b); height: 0;}
