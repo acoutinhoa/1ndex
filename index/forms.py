@@ -68,24 +68,48 @@ class ProjetoTextoForm(forms.ModelForm):
             }
 
 # projetos imagem
-class ImagemForm(forms.ModelForm):
-    class Meta:
-        model = Imagem
-        fields = ["imagem", "capa", "carrossel"]
-        widgets = { 
-            'imagem': forms.FileInput(attrs={'placeholder': 'selecione uma imagem',}),
-            }
-        
-# projeto imagens
-ImagensFormSet = modelformset_factory(
+ImagemForm = forms.inlineformset_factory(
+    Projeto,
     Imagem,
-    fields = ["nome", "capa", "carrossel"],
-    extra = 0,
+    fields = ['imagem',],
+    extra = 1,
+    widgets = {
+        # 'imagem': forms.FileInput(attrs={'placeholder': 'selecione uma imagem',}),
+        },
+)
+
+# projeto imagens
+ImagensFormSet = forms.inlineformset_factory(
+    Projeto,
+    Imagem,
+    fields = ["nome", "imagem", "capa", "carrossel"],
+    can_delete = False,
+    extra = 1,
     widgets = { 
         'nome': forms.TextInput(attrs={'placeholder': 'nova imagem', }),
+        'imagem': forms.FileInput(attrs={'placeholder': 'selecione uma imagem',}),
     },
    # can_order = True,
 )
+
+# class ImagemForm(forms.ModelForm):
+#     class Meta:
+#         model = Imagem
+#         fields = ["imagem", "projeto"]
+#         widgets = { 
+#             }
+        
+# # projeto imagens
+# ImagensFormSet = modelformset_factory(
+#     Imagem,
+#     fields = ["nome", "imagem", "capa", "carrossel"],
+#     extra = 1,
+#     widgets = { 
+#         'nome': forms.TextInput(attrs={'placeholder': 'nova imagem', }),
+#         'imagem': forms.FileInput(attrs={'placeholder': 'selecione uma imagem',}),
+#     },
+# # can_order = True,
+# )
 
 # links
 LinksFormSet = modelformset_factory(

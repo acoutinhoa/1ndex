@@ -32,6 +32,7 @@ projeto_patterns = [
     path('remove/tag/<int:tag>/', views.projeto_remove_tag, name='projeto-remove-tag'),
     path('add/tag/<int:tag>/', views.projeto_add_tag, name='projeto-add-tag'),
     path('add/tag/', views.projeto_add_tag, name='projeto-add-tag'),
+    path('add/imagem/', views.projeto_add_imagem, name='projeto-add-imagem'),
     path('visibilidade/', views.projeto_visibilidade, name='projeto-visibilidade'),
 ]
 
@@ -123,7 +124,8 @@ htmx_patterns = [
     path('clear/', views.clear, name='clear'),
     path('tags/<str:filtros>/', views.tags, name='tags-index'),
     # delete
-    path('link/delete/<str:pk>/', views.delete_link, name='delete-link'),
+    path('delete/link/<str:pk>/', views.delete_link, name='delete-link'),
+    path('delete/imagem/<str:pk>/', views.delete_imagem, name='delete-imagem'),
     # check
     path('check/codinome/', views.check_codinome, name='check-codinome'),
     path('check/codinome/<str:url>/', views.check_codinome, name='check-url'),

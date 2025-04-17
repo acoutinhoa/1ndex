@@ -1,0 +1,24 @@
+<div class="c2 h3">nova imagem</div>
+
+<form 
+    id="form-nova-imagem"
+    class="w80 row wrap"
+    method="POST"
+    enctype='multipart/form-data'
+    hx-post="{{ add }}" 
+    hx-target='#nova-imagem-form'
+    autocomplete="off">
+    {{ form.management_form }}
+    
+    {% for f in form %}
+    {{ f.id }}
+    {{ f.imagem }}
+    {% if form.imagem.errors %}<div class="legenda c2 mb2 w100">{{ form.imagem.errors }}</div>{% endif %}
+    {% endfor %}
+
+
+    <input 
+        type="submit" 
+        class="link btn c2 center" 
+        value="salvar" />
+</form>

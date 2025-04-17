@@ -1,8 +1,6 @@
 {% load index_tags %}
-{% load humanize %}
 {% load widget_tweaks %}
-
-<h2 class='mb1 w100'>imagens <span class="c0">[{{ imagens.count|default:'0' }}]</span></h2>
+{% load humanize %}
 
 <form 
     id="form-imagens"
@@ -17,19 +15,45 @@
     <input type="hidden" name="redirect" value="{{ post }}" />
     <input type="hidden" name="template" value="true" />
 
+    <!-- novo form -->
+    {% for form in formset %}
+    {% if not form.id.value %}
+    {{ form.id }}
+    <div id="link-{{ forloop.counter }}" class="row w80 mt1" style="align-items: flex-start;">
+        <div class="row wrap w100">
+            
+            {% if form.non_field_errors %}<div class="legenda b c2 mb w100">{{ form.non_field_errors }}</div>{% endif %}
+
+            {% for field in form.visible_fields %}
+                
+            {% if field.name == 'imagem' %}
+            <div class="c2 h3">nova imagem</div>
+            {{ form.imagem }}
+
+            {% else %}
+            {% render_field field type="hidden" %}
+
+            {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    {% endfor %}
+
+
+    {% if imagens %}
+    <div class="linha"></div>
     
+    <h2 class='mb1 w100'>imagens <span class="c0">[{{ imagens.count|default:'0' }}]</span></h2>
 
-
+    <!-- edita imagens -->
     <ol class="lista2">
         {% for form in formset %}
-        {{ form.id }}
 
         {% if form.id.value %}
+        {{ form.id }}
         {% get_imagem imagens form.id.value as imagem %}
-        {% else %}
-        {% set '' as imagem %}
-        {% endif %}
-        
+
         <div id="link-{{ forloop.counter }}" class="row w80 mt1" style="align-items: flex-start;">
             <div class="row wrap {% if imagem %}w60{% else %}w100{% endif %}">
                 
@@ -47,53 +71,21 @@
 
                 {% for field in form.visible_fields %}
                 
-                {% if field.name in 'capa,carrossel' %}
-                <div class="wa mr2">{{ field }}</div>
-                <div class="{% if not imagem %}c2{% else %}c1{% endif %} mr1">{{ field.name }}</div>
-                {% if field.errors %}<div class="legenda c2 mb2">{{ field.errors }}</div>{% endif %}
-                
-                {% elif field.name == 'imagem' %}
+                {% if field.name == 'imagem' %}
                 {% render_field field type="hidden" %}
 
-                {% else %}       
-                <div class="{% if not imagem %}c2{% else %}c1{% endif %}">{% if field.name == 'imagem' and imagem %}modificar {% endif %}{{ field.name }}</div>
+                {% elif field.name == 'nome' %}
+                <div class="c1">{{ field.name }}</div>
                 {{ field }}
-                {% if field.errors %}<div class="legenda c2 mb2">{{ field.errors }}</div>{% endif %}
+
+                {% elif field.name in 'capa carrossel' %}       
+                <div class="wa mr2">{{ field }}</div>
+                <div class="{% if not imagem %}c2{% else %}c1{% endif %} mr1">{{ field.name }}</div>
 
                 {% endif %}
+                {% if field.errors %}<div class="legenda c2 mb2">{{ field.errors }}</div>{% endif %}
+
                 {% endfor %}
-
-
-                {% comment %} {% for field in form.visible_fields %}
-                
-                {% if imagem %}
-                    {% if field.name == 'imagem' %}
-                    {% render_field field type="hidden" %}
-
-                    {% elif field.name == 'nome' %}
-                    <div class="c1">{{ field.name }}</div>
-                    {{ field }}
-
-                    {% elif field.name in 'capa carrossel' %}       
-                    <div class="wa mr2">{{ field }}</div>
-                    <div class="{% if not imagem %}c2{% else %}c1{% endif %} mr1">{{ field.name }}</div>
-
-                    {% endif %}
-                {% else %}
-                    {% if field.name == 'imagem' %}
-                    <div class="c2 h3">nova imagem</div>
-                    {{ field }}
-
-                    {% else %}       
-                    {% render_field field type="hidden" %}
-
-                    {% endif %}
-                {% endif %}
-
-                {% if field.errors %}<div class="legenda c2 mb2">{{ field.errors }}</div>{% endif %}
-
-                {% endfor %} {% endcomment %}
-
 
                 {% if imagem in atualizado %}
                 {% include 'index/base/msg.html' with tipo='clear' class='legenda mt mb2 w100' tempo='4' msg='imagem atualizada' %}
@@ -108,12 +100,16 @@
         </div>
 
         {% if not forloop.last %}<div class="linha fina mt"></div>{% endif %}
+
+        {% endif %}
         {% endfor %}
+        
     </ol>
     <input 
         type="submit" 
         class="link btn c2 center" 
         value="salvar" />
+    {% endif %}
 </form>
 
 

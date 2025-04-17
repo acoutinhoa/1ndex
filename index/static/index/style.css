@@ -219,6 +219,7 @@ input:focus, textarea:focus, select:focus {
 input[type="file"] {
     font-size: 0.8em;
 }
+
 input[type="file"]::file-selector-button {
     background-color: transparent;
     color: var(--c1);

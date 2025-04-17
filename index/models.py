@@ -187,7 +187,7 @@ def projeto_imagepath(instance, filename):
     return f'index/{instance.projeto.perfil}/{instance.projeto.pk}/{filename}'
 
 class Imagem(models.Model):
-    projeto = models.ForeignKey(Projeto, on_delete=models.CASCADE, related_name='imagens')
+    projeto = models.ForeignKey(Projeto, on_delete=models.CASCADE, related_name='imagens', blank=True)
     nome = models.CharField(max_length=39, blank=True, null=True)
     imagem = models.ImageField(upload_to=projeto_imagepath, max_length=100)
     capa = models.BooleanField(default=False)
@@ -202,11 +202,12 @@ class Imagem(models.Model):
             raise ValidationError("este nome de imagem já existe neste projeto")
 
     def save(self, *args, **kwargs):
-        if not self.nome:
-            self.nome = f'imagem-{self.pk}'
-            # self.nome = self.imagem.name.split('/')[-1][:39]
         self.full_clean()  # verifica se o nome é unico por projeto
         super().save(*args, **kwargs)
+        if not self.nome:
+            # self.nome = self.imagem.name.split('/')[-1][:39]
+            self.nome = f'imagem-{self.pk}'
+            self.save()  # salva o nome da imagem
 
     class Meta:
         ordering = ['-id']

@@ -1,11 +1,13 @@
 <!-- novo -->
-nova imagem
+<div id="nova-imagem-form">
+    {% comment %} {% include 'index/projeto/edit/imagens_novo_form.html' %} {% endcomment %}
+</div>
 
 {% if imagens %}
 <div class="linha"></div>
 
 <!-- imagens -->
 <div id="imagens-form">
-{% include 'index/projeto/edit/imagens_form.html' %}
+    {% include 'index/projeto/edit/imagens_form.html' %}
 </div>
 {% endif %}
