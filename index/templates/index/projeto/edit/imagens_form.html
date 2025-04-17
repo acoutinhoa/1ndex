@@ -1,0 +1,75 @@
+{% load index_tags %}
+
+<div class="row end">
+    <h2 class='mb1 w100'>imagens <span class="c0">[{{ imagens.count|default:'0' }}]</span></h2>
+
+    <input 
+    type="submit" 
+    form="form-imagens"
+    class="link btn c2 mr mt" 
+    style="position: fixed;"
+    value="atualizar" />
+</div>
+
+<form 
+    id="form-imagens"
+    method="POST"
+    enctype='multipart/form-data'
+    hx-post="{{ post }}" 
+    hx-target='#imagens-form'
+    hx-trigger="keyup chaged delay:2s, change"
+    autocomplete="off">
+    {{ formset.management_form }}
+    
+
+    <ol class="lista2">
+        {% for form in formset %}
+        {% get_imagem imagens form.id.value as imagem %}
+        
+        <div class="row w80 mt1" style="align-items: flex-start;">
+            <div id="link-{{ forloop.counter }}" class="row wrap w60">
+                <li class="h3">{{ imagem.nome }}</li>
+                
+                <div class="legenda c1 w100 mb">
+                    largura: {{ imagem.imagem.width }} px<br>
+                    altura: {{ imagem.imagem.height }} px<br>
+                    tamanho: {{ imagem.imagem.size|filesizeformat }} <br>
+                </div>
+
+                {{ form.id }}
+
+                {% if form.non_field_errors %}<div class="legenda b c2 mb w100">{{ form.non_field_errors }}</div>{% endif %}
+
+                {% for field in form.visible_fields %}
+                
+                {% if field.name in 'capa carrossel' %}
+                <div class="wa mr2">{{ field }}</div>
+                <div class="c1 mr1">{{ field.name }}</div>
+                
+                {% else %}       
+                <div class="c1">{% if field.name == 'imagem' %}modificar {% endif %}{{ field.name }}</div>
+                {{ field }}
+
+                {% endif %}
+
+                {% if field.errors %}<div class="legenda c2 mb2 w100">{{ field.errors }}</div>{% endif %}
+                {% endfor %}
+
+
+                {% if imagem in atualizado %}
+                {% include 'index/base/msg.html' with tipo='clear' class='legenda mt mb2 w100' tempo='4' msg='imagem atualizada' %}
+                {% endif %}
+            </div>
+
+            <div class="w40 ml1">
+                <img src="{{ imagem.imagem.url }}" alt="{{ imagem.nome }}">
+            </div>
+        </div>
+
+        {% if not forloop.last %}<div class="linha fina mt"></div>{% endif %}
+        {% endfor %}
+    </ol>
+</form>
+
+
+

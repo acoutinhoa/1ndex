@@ -5,12 +5,12 @@
 <form 
     method="POST"
     class="w90"
-    hx-post="{{ redirect }}" 
+    hx-post="{{ post }}" 
     hx-target='#form-links'
     autocomplete="off">
     {{ formset.management_form }}
     
-    <input type="hidden" name="redirect" value="{{ redirect }}" />
+    <input type="hidden" name="redirect" value="{{ post }}" />
 
     <ol class="lista2">
         {% for form in formset %}

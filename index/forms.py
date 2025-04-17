@@ -58,7 +58,7 @@ class ProjetoForm(forms.ModelForm):
             'info': forms.Textarea(attrs={'rows': 5, 'placeholder': 'breve descrição do projeto', }),
             }
 
-# projetos 
+# projetos texto
 class ProjetoTextoForm(forms.ModelForm):
     class Meta:
         model = Projeto
@@ -66,6 +66,26 @@ class ProjetoTextoForm(forms.ModelForm):
         widgets = { 
             'texto': forms.Textarea(attrs={'rows': 19, 'placeholder': 'texto do projeto', }),
             }
+
+# projetos imagem
+class ImagemForm(forms.ModelForm):
+    class Meta:
+        model = Imagem
+        fields = ["imagem", "capa", "carrossel"]
+        widgets = { 
+            'imagem': forms.FileInput(attrs={'placeholder': 'selecione uma imagem',}),
+            }
+        
+# projeto imagens
+ImagensFormSet = modelformset_factory(
+    Imagem,
+    fields = ["nome", "capa", "carrossel"],
+    extra = 0,
+    widgets = { 
+        'nome': forms.TextInput(attrs={'placeholder': 'nova imagem', }),
+    },
+   # can_order = True,
+)
 
 # links
 LinksFormSet = modelformset_factory(
@@ -76,7 +96,7 @@ LinksFormSet = modelformset_factory(
     widgets = { 
         'url': forms.Textarea(attrs={'rows': 1, 'placeholder': 'http://', }),
         'nome': forms.Textarea(attrs={'rows': 1, 'placeholder': 'novo link', }),
-    }
+    },
    # can_order = True,
 )
 

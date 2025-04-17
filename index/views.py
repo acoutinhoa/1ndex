@@ -132,6 +132,7 @@ def index(request, url=None, filtros=None):
     }
     return render(request, 'index/base/_home.html', context)
 
+
 def tags(request, filtros, url=None):
     user = request.user
     editor = False
@@ -171,7 +172,6 @@ def tags(request, filtros, url=None):
         'filtros': filtros,
     }
     return render(request, 'index/base/_main.html', context)
-
 
 
 # edit home
@@ -302,7 +302,7 @@ def edit_links(request, url):
         'links': links,
         'novo': novo,
         'atualizado': atualizado,
-        'redirect': reverse('index:edit-links', kwargs={'url': url}),
+        'post': reverse('index:edit-links', kwargs={'url': url}),
     }
     return render(request, 'index/edit/links_form.html', context)
 
@@ -764,7 +764,7 @@ def projeto_edit_links(request, url, purl):
         'links': links,
         'novo': novo,
         'atualizado': atualizado,
-        'redirect': reverse('index:projeto-edit-links', kwargs={'url': url, 'purl':purl,}),
+        'post': reverse('index:projeto-edit-links', kwargs={'url': url, 'purl':purl,}),
     }
     return render(request, 'index/edit/links_form.html', context)
 
@@ -886,12 +886,26 @@ def projeto_edit_texto(request, url, purl):
 def projeto_edit_imagens(request, url, purl):
     url = get_object_or_404(Url, nome=url)
     projeto = get_object_or_404(Projeto, perfil=url, url=purl)
+    imagens = projeto.imagens.all()
+    atualizado = []
+    template = 'index/projeto/edit/imagens.html'
 
+    if request.method == "POST":
+        formset = ImagensFormSet(request.POST, request.FILES, queryset=imagens, prefix='imagem')
+        if formset.is_valid():
+            atualizado = formset.save()
+            formset = ImagensFormSet(queryset=projeto.imagens.all(), prefix='imagem')
+        template = 'index/projeto/edit/imagens_form.html'
+    else:
+        formset = ImagensFormSet(queryset=imagens, prefix='imagem')
+    
     context = {
-        'url': url,
-        'projeto': projeto,
+        'formset': formset,
+        'imagens': imagens,
+        'atualizado': atualizado,
+        'post': reverse('index:projeto-edit-imagens', kwargs={'url': url, 'purl':purl,}),
     }
-    return render(request, 'index/projeto/edit/imagens.html', context)
+    return render(request, template, context)
 
 # edit equipe
 def projeto_edit_equipe(request, url, purl):

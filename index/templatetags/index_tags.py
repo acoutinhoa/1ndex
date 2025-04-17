@@ -17,6 +17,11 @@ register = template.Library()
 def set(value):
 	return value
 
+@register.simple_tag
+def get_imagem(imagens, id):
+	imagem = imagens.filter(id=id).first()
+	return imagem
+
 @register.simple_tag(takes_context=True)
 def full_url(context, relative_url):
   request = context['request']

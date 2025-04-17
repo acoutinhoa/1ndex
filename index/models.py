@@ -52,7 +52,7 @@ class User(AbstractUser, Base):
     def clean(self):
         super().clean()
         if self.username in url_proibidas or Url.objects.filter(nome=self.username).exclude(user=self).exists():
-            raise ValidationError("Este codinome não está disponível.")
+            raise ValidationError("Este codinome não está disponível")
 
     def save(self, *args, **kwargs):
         novo = self._state.adding
@@ -103,7 +103,7 @@ class Url(models.Model):
     def clean(self):
         super().clean()
         if self.nome in url_proibidas:
-            raise ValidationError("Este codinome não está disponível.")
+            raise ValidationError("Este codinome não está disponível")
 
     def save(self, *args, **kwargs):
         self.full_clean()  # verifica se a url é permitida
@@ -148,9 +148,6 @@ class Tag(models.Model):
         ordering = ['nome']
 
 
-def projeto_imagepath(instance, filename):
-    return 'index/{0}/{1}'.format(instance.pk, filename)
-
 class Projeto(Base):
     u0 = models.ForeignKey(User, on_delete=models.CASCADE) # >>>>>>>>>>>>> definir o on_delete
     texto = models.TextField(blank=True, null=True)
@@ -161,8 +158,8 @@ class Projeto(Base):
     url = models.SlugField(max_length=119)
     Etapa = models.IntegerChoices("Etapa", "RASCUNHO DESENVOLVIMENTO FINALIZADO")
     etapa = models.IntegerField(choices=Etapa, default=3)
-    links = models.ManyToManyField(Link)
-    # imagem = models.ImageField(upload_to=projeto_imagepath, max_length=100, blank=True, null=True,)
+    links = models.ManyToManyField(Link, related_name='projetos')
+    # imagens = models.ManyToManyField(Imagem, related_name='projetos')
     # -equipe [m2m] [user] > [trabalho] (X criador) ‘projetos’
     # -ordem [] ()
     # -tempo total [gen] (X)
@@ -185,6 +182,35 @@ class Projeto(Base):
         
     def get_absolute_url(self):
         return reverse('index:projeto', kwargs={'url': self.perfil, 'purl':self.url})
+
+def projeto_imagepath(instance, filename):
+    return f'index/{instance.projeto.perfil}/{instance.projeto.pk}/{filename}'
+
+class Imagem(models.Model):
+    projeto = models.ForeignKey(Projeto, on_delete=models.CASCADE, related_name='imagens')
+    nome = models.CharField(max_length=39, blank=True, null=True)
+    imagem = models.ImageField(upload_to=projeto_imagepath, max_length=100)
+    capa = models.BooleanField(default=False)
+    carrossel = models.BooleanField(default=True)
+
+    def __str__(self):
+        return str(self.nome)
+
+    def clean(self):
+        super().clean()
+        if Imagem.objects.filter(projeto=self.projeto, nome=self.nome).exclude(id=self.id).exists():
+            raise ValidationError("este nome de imagem já existe neste projeto")
+
+    def save(self, *args, **kwargs):
+        if not self.nome:
+            self.nome = f'imagem-{self.pk}'
+            # self.nome = self.imagem.name.split('/')[-1][:39]
+        self.full_clean()  # verifica se o nome é unico por projeto
+        super().save(*args, **kwargs)
+
+    class Meta:
+        ordering = ['-id']
+
 
 
 ##############################################

@@ -67,6 +67,15 @@
 .tags {border: solid var(--b) rgb(0,255,0); max-height: 30vh;}
 .projeto {max-height: 60vh;}
 
+/*------------------------------------------------------------*/
+/* imagem */
+
+img {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+}
 
 /*------------------------------------------------------------*/
 /* textos */
@@ -199,11 +208,26 @@ input, textarea, select {
     font-size: 1em;
 }
 
+
 input:focus, textarea:focus, select:focus {
     background-color: var(--branco);
     outline-style: none;
     box-shadow: none;
     border-color: var(--c2);
+}
+
+input[type="file"] {
+    font-size: 0.8em;
+}
+input[type="file"]::file-selector-button {
+    background-color: transparent;
+    color: var(--c1);
+    padding: 1px 9px;
+    border: solid var(--b2) var(--c2);
+}
+input[type="file"]::file-selector-button:hover {
+    color: var(--c2);
+    cursor: pointer;
 }
 
 ::placeholder {
@@ -247,6 +271,7 @@ label {
 .w70 {width: 70%;}
 .w60 {width: 60%;}
 .w50 {width: 50%;}
+.w40 {width: 40%;}
 .w30 {width: 30%;}
 .w10 {width: 10%;}
 .wa {width: auto;}
@@ -264,8 +289,10 @@ label {
 
 /* margem */
 .ml {margin-left: 19px;}
+.ml1 {padding-left: 29px;}
 .ml2 {padding-left: 9px;}
 .mr {margin-right: 19px;}
+.mr1 {padding-right: 29px;}
 .mr2 {padding-right: 9px;}
 .mr4 {margin-right: 4px;}
 
