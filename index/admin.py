@@ -10,4 +10,5 @@ admin.site.register(Projeto)
 admin.site.register(Tag)
 admin.site.register(Link)
 admin.site.register(Imagem)
+admin.site.register(Texto)
 

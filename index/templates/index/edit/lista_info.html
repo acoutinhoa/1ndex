@@ -18,11 +18,11 @@
 
 <input type="hidden" name="n" value="{{ n }}" id="n-{{ n }}" />
 <div 
-    class="link btn ml {% if item.publico %}c2{% endif %}" 
+    class="link btn ml" 
     hx-post="{{ link_visibilidade }}"
     hx-target="#{{ id|default:'item' }}-{{ n }}"
     hx-include="[name='template'],#n-{{ n }}" >
-    {% if item.publico %}privatizar{% else %}publicar{% endif %}
+    {% if item.publico %}ocultar{% else %}publicar{% endif %}
 </div>
 
 <div 

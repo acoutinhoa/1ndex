@@ -31,13 +31,13 @@
 
             {% if form.id.value %}
             <div 
-                class='btn c2 link ml'
+                class='btn c2 link ml h2'
                 hx-delete="{% url 'index:delete-link' pk=form.id.value %}"
-                hx-confirm="tem certeza que deseja deletar link '{{ form.nome.value }}'?"
+                hx-confirm="deletar link '{{ form.nome.value }}'?"
                 hx-include="[name='redirect']"
                 hx-swap="outerHTML"
                 hx-target="#link-{{ forloop.counter }}" >
-                X
+                x
             </div>
             {% endif %}
         </div>

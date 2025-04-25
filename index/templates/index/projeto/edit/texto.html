@@ -1,15 +1,35 @@
-<!-- instruções -->
+<h3 class="c2">novo texto</h3>
+<!-- novo form -->
+<div id='form-texto-novo'>
+    {% include 'index/projeto/edit/titulo_form.html' %}
+</div>
+
+{% if textos %}
+<div class="linha"></div>
+
+<h2>textos <span class="c0">[{{ textos.count|default:0 }}]</span></h2>
+<div id="titulos-lista" class="mt1 w80">
+    {% include 'index/base/titulos_lista.html' with lista=textos %}
+</div>
+{% endif %}
+
+<div id="texto-edit">
+    {% if pk %}
+    <div 
+    hx-get={% url 'index:edit-texto' pk=pk %} 
+    hx-target=this
+    hx-trigger="load" 
+    hx-swap="outerHTML"></div>
+    {% endif %}    
+</div>
+
+{% comment %} <!-- instruções -->
+<div class="linha"></div>
+
 <ul>
     <li>instruções para editar o texto</li>
     <li>autosave</li>
     <li>criar capitulos</li>
     <li>lista de imagens</li>
-</ul>
+</ul> {% endcomment %} 
 
-<!-- linha -->
-<div class="linha"></div>
-
-<!-- form -->
-<div id='form-texto' class="w80">
-    {% include 'index/projeto/edit/texto_form.html' %}
-</div>

@@ -1,0 +1,39 @@
+{% load widget_tweaks %}
+
+<form 
+    method="POST" 
+    hx-post="{{ post }}" 
+    hx-target="{{ target|default:'#form-texto-novo' }}"
+    autocomplete="off">
+    {% csrf_token %}
+    
+    <div class="row start">
+        <div class="row wrap w80">
+            {% comment %} {% render_field form.ordem type='hidden' class="w100" %} {% endcomment %}
+            <div class="w100">
+                {% if texto %}
+                    <b>{{ form.titulo.label_tag }}</b>
+                    {{ form.titulo }}
+                {% else %}
+                    {% render_field form.titulo placeholder="novo título" %}
+                {% endif %}
+                {% if form.titulo.errors %}<div class="legenda c2 mb2">{{ form.titulo.errors }}</div>{% endif %}
+            </div>
+            <div class="w70 mr1">
+                <b>{{ form.superior.label_tag }}</b>
+                {% render_field form.superior placeholder="projeto" %}
+                {% if form.superior.errors %}<div class="legenda c2 mb2">{{ form.superior.errors }}</div>{% endif %}
+            </div>
+            <div class="w30">
+                <b>{{ form.ordem.label_tag }}</b>
+                {% render_field form.ordem %}
+                {% if form.ordem.errors %}<div class="legenda c2 mb2">{{ form.ordem.errors }}</div>{% endif %}
+            </div>
+        </div>
+        <input 
+            type="submit" 
+            class="link btn c2 w20 ml" 
+            value="salvar" />
+    </div>
+
+</form>

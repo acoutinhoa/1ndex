@@ -43,7 +43,7 @@ def menu_edit_projeto(url, purl):
     menu = [
         ['perfil',reverse_lazy('index:projeto-edit-perfil', kwargs={'url': url, 'purl': purl})],
         ['tags',reverse_lazy('index:projeto-edit-tags', kwargs={'url': url, 'purl': purl})],
-        ['texto',reverse_lazy('index:projeto-edit-texto', kwargs={'url': url, 'purl': purl})],
+        ['textos',reverse_lazy('index:projeto-edit-textos', kwargs={'url': url, 'purl': purl})],
         ['imagens',reverse_lazy('index:projeto-edit-imagens', kwargs={'url': url, 'purl': purl})],
         ['equipe',reverse_lazy('index:projeto-edit-equipe', kwargs={'url': url, 'purl': purl})],
         ['deletar',reverse_lazy('index:delete-projeto', kwargs={'url': url, 'purl': purl})],     
@@ -142,7 +142,7 @@ def tags(request, filtros, url=None):
     if filtros == 'None':
         filtros = None
     else:
-        filtros = filtros.split('+')
+        filtros = filtros.split('/')
         filtros = tags.filter(id__in=filtros)
         tags = tags.exclude(id__in=filtros)
         for tag in filtros:
@@ -402,15 +402,12 @@ def add_convite(request, url):
 def edit_adms(request, url):
     grupo = get_object_or_404(Grupo, url__nome=url)
     adms = grupo.u0.all()
-    template = request.GET.get('template')
-    if not template:
-        template = 'index/edit/adms.html'
 
     context = {
         'url': grupo.url,
         'adms': adms,
     }
-    return render(request, template, context)
+    return render(request, 'index/edit/adms.html', context)
 
 # add adm
 def add_adm(request, url):
@@ -453,8 +450,11 @@ def delete_adm(request, url, pk):
     context = {
         'msg': f'adm <b>{ adm }</b> removido do grupo <b>{ grupo.nome }</b>',
         'class': 'legenda mt1',
-        'tipo': 'clear',
     }
+    if len(grupo.u0.all()) == 1:
+        context['redirect'] = reverse('index:edit-adms', kwargs={'url': url})
+    else:
+        context['tipo'] = 'clear'
     return render(request, 'index/base/msg.html', context)
 
 #---------------------------------------------------------
@@ -631,6 +631,10 @@ def delete_projeto(request, url, purl):
     if (perfil_tipo == 'user' and user != perfil) or (perfil_tipo == 'grupo' and user not in perfil.u0.all()):
         raise PermissionDenied
     
+    # deleta imagens do projeto
+    if projeto.imagens.exists():
+        for imagem in projeto.imagens.all():
+            imagem.imagem.delete()
     projeto.delete()
     
     if request.GET.get('redireciona'):
@@ -765,6 +769,7 @@ def projeto_edit_links(request, url, purl):
             for link in novos_links:
                 if link not in links:
                     projeto.links.add(link)
+                    projeto.save()
                     novo = link.id
                 atualizado.append(link.id)
 
@@ -791,8 +796,8 @@ def projeto_edit_tags(request, url, purl, publico=True,):
 
     # tags_all = Tag.objects.all().exclude(projetos=projeto)
     tags_index = Tag.objects.exclude(id__in=tags)
-    tags_perfil = tags_index.filter(projetos__perfil=url).distinct()
-    tags_index = tags_index.exclude(id__in=tags_perfil).exclude(publico=False)
+    tags_perfil = tags_index.filter(projetos__perfil=url).distinct().annotate(Count("projetos")).order_by('-projetos__count', 'nome')
+    tags_index = tags_index.exclude(id__in=tags_perfil).exclude(publico=False).annotate(Count("projetos")).order_by('-projetos__count', 'nome')
 
     context = {
         'url': url,
@@ -873,29 +878,131 @@ def projeto_remove_tag(request, url, purl, tag):
     return redirect('index:projeto-edit-tags', url=url, purl=purl)
 
 # edit texto
-def projeto_edit_texto(request, url, purl):
+def projeto_edit_texto(request, url, purl, pk=None):
     url = get_object_or_404(Url, nome=url)
     projeto = get_object_or_404(Projeto, perfil=url, url=purl)
-    msg = None
-    template = 'index/projeto/edit/texto.html'
+    textos = projeto.textos.filter(superior=None)
 
+    # novo texto
     if request.method == "POST":
-        form = ProjetoTextoForm(request.POST, instance=projeto, label_suffix='')
+        form = TituloForm(request.POST, projeto=projeto, label_suffix='', prefix='novo')
+        template = 'index/projeto/edit/titulo_form.html'
+        if form.is_valid():
+            texto = form.save(commit=False)
+            print(texto)
+            texto.projeto = projeto
+            texto.save()
 
-        if form.has_changed() and form.is_valid():
-            form.save()
-            msg = f'texto de <b>{ projeto.nome }</b> atualizado'
-            template = 'index/projeto/edit/texto_form.html'
+            context = {
+                'msg': f'nova texto <b>{texto.titulo}</b> adicionado ao projeto <b>{projeto.nome}</b>',
+                'class': 'legenda mt',
+                'redirect': reverse('index:projeto-edit-textos', kwargs={'url': url, 'purl': projeto.url, 'pk': texto.pk}),
+            }
+            return render(request, 'index/base/msg.html', context)
     else:
-        form = ProjetoTextoForm(instance=projeto, label_suffix='')
-    
+        form = TituloForm(projeto=projeto, label_suffix='', prefix='novo')
+        template = 'index/projeto/edit/texto.html'
+
     context = {
-        'url': url,
         'projeto': projeto,
+        'url': url,
+        'textos': textos,
         'form': form,
-        'msg': msg,
+        'post' : reverse('index:projeto-edit-textos', kwargs={'url': url, 'purl': purl,}),
+        'pk': pk,
     }
     return render(request, template, context)
+
+# edit texto
+def projeto_texto_form(request, pk):
+    texto = get_object_or_404(Texto, pk=pk)
+    projeto = texto.projeto
+
+    if request.method == "POST":
+        template = 'index/projeto/edit/texto_form.html'
+        form = TextoForm(request.POST, instance=texto, label_suffix='', prefix='texto')
+        if form.has_changed() and form.is_valid():
+            form.save()
+    else:
+        template = 'index/projeto/edit/texto_info.html'
+        form = TextoForm(instance=texto, label_suffix='', prefix='texto')
+ 
+    context = {
+        'texto': texto,
+        'form': form,
+        'post' : reverse('index:edit-texto', kwargs={'pk': pk}),
+    }
+    return render(request, template, context)
+
+# edit titulo
+def projeto_titulo_form(request, pk):
+    texto = get_object_or_404(Texto, pk=pk)
+    projeto = texto.projeto
+
+    if request.method == "POST":
+        form = TituloForm(request.POST, instance=texto, projeto=projeto, pk=texto.pk, label_suffix='', prefix='titulo')
+        if form.is_valid():
+            form.save()
+
+            context = {
+                'msg': f'texto <b>{texto}</b> atualizado',
+                'class': 'legenda w80',
+                'redirect': reverse('index:projeto-edit-textos', kwargs={'url': projeto.perfil, 'purl': projeto.url, 'pk': texto.pk}),
+            }
+            return render(request, 'index/base/msg.html', context)
+    else:
+        form = TituloForm(instance=texto, projeto=projeto, pk=texto.pk, label_suffix='', prefix='titulo')
+
+    context = {
+        'form': form,
+        'texto': texto,
+        'post' : reverse('index:edit-titulo', kwargs={'pk': pk}),
+        'target': '#titulo',
+    }
+    return render(request, 'index/projeto/edit/titulo_form.html', context)
+
+# mudar visibilidade
+def projeto_texto_visibilidade(request, pk):
+    def sub_visibilidade(lista, visibilidade):
+        for item in lista:
+            item.publico = visibilidade
+            item.save()
+            if item.subtextos.exists():
+                sub_visibilidade(item.subtextos.all(), visibilidade)
+
+    texto = get_object_or_404(Texto, pk=pk)
+    projeto = texto.projeto
+    texto.mudar_visibilidade()
+    if texto.subtextos.exists():
+        sub_visibilidade(texto.subtextos.all(), texto.publico)
+
+    context = {
+        'projeto': projeto,
+        'lista': projeto.textos.filter(superior=None),
+        'url': projeto.perfil,
+    }
+    return render(request, 'index/base/titulos_lista.html', context)
+
+# deletar visibilidade
+@require_http_methods(['DELETE'])
+def delete_texto(request, pk):
+    def sub_delete(lista):
+        for item in lista:
+            if item.subtextos.exists():
+                sub_delete(item.subtextos.all())
+            item.delete()
+
+    texto = get_object_or_404(Texto, pk=pk)
+    if texto.subtextos.exists():
+        sub_delete(texto.subtextos.all())
+    texto.delete()
+    projeto = texto.projeto
+
+    context = {
+        'msg': f'texto <b>{texto.titulo}</b> removido do projeto <b>{projeto.nome}</b>',
+        'redirect': reverse('index:projeto-edit-textos', kwargs={'url': projeto.perfil, 'purl': projeto.url,}),
+    }
+    return render(request, 'index/base/msg.html', context)
 
 def projeto_edit_imagens(request, url, purl):
     url = get_object_or_404(Url, nome=url)
@@ -935,6 +1042,7 @@ def projeto_add_imagem(request, url, purl):
         novo = form.save(commit=False)
         novo.projeto = projeto
         novo.save()
+        projeto.save()
 
         context = {
             'msg': f'nova imagem adicionada ao projeto <b>{ projeto.nome }</b>',

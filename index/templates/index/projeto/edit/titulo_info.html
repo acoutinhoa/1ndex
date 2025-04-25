@@ -1,0 +1,20 @@
+
+<div class="row start">
+    <div class="w80">
+        <h2 class="mb {% if not texto.publico %}c2{% endif %}">{{ texto.titulo }}</h2>
+        {% if texto.superior %}
+        subtítulo de <span class="link" hx-get="{% url 'index:edit-texto' pk=texto.superior.pk %}" hx-target="#texto-edit">{{ texto.superior }}</span><br>
+        {% endif %}
+        ordem: {{ texto.ordem }}
+    </div>
+
+    <div 
+        class="c2 link btn ml"
+        hx-get="{% url 'index:edit-titulo' pk=texto.pk %}"
+        hx-target="#titulo">
+        editar
+    </div>
+</div>
+
+{% if msg %}
+{% endif %}

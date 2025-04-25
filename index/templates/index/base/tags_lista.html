@@ -19,7 +19,7 @@
                 class="mr4 link {% if not item.publico %}c2{% endif %}" 
                 hx-post="{% url 'index:projeto-add-tag' url=url purl=projeto.url tag=item.id %}" 
                 hx-target="#content">
-                {{ item }}</div> <span class="c1 legenda">(+)</span>
+                {{ item }}</div> <span class="legenda mr4">[{{ item.projetos__count }}]</span> <span class="c1 legenda">(+)</span>  
             
             {% elif tipo == 'projeto' %}
             <div 
@@ -59,4 +59,12 @@
         </div>
         {% endif %}
     {% endfor %}
+    {% if tag_tipo == 'main-' and lista.count > 1 %}
+        [<div 
+        class="h3 link2 c2" 
+        hx-post="{% if url %}{% url 'index:tags-perfil' url=url filtros=None %}{% else %}{% url 'index:tags-index' filtros=None %}{% endif %}"
+        hx-push-url="{% if url %}{% url 'index:perfil' url=url %}{% else %}{% url 'index:index' %}{% endif %}"
+        hx-target="#main">
+        x</div>]
+    {% endif %}
 </div>

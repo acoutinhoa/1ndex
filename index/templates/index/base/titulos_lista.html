@@ -1,0 +1,15 @@
+<ol class="{{ class }}">
+    {% for item in lista %}
+        <li id="li-{{ item.pk }}">
+            <span class="h3 mr {% if item.publico %}c1{% else %}c2{% endif %} link2" hx-get="{% url 'index:edit-texto' pk=item.pk %}#texto-edit" hx-target="#texto-edit">{{ item.titulo }}</span>
+            {% if item.publico or not item.superior or item.superior and item.superior.publico %}
+            <span class="legenda mr4">[<span class="c0 link" hx-get="{% url 'index:texto-visibilidade' pk=item.pk %}" hx-target="#titulos-lista">{% if item.publico %}ocultar{% else %}publicar{% endif %}</span>]</span>
+            {% endif %}
+            <span class="legenda">[<span class="c2 link" hx-delete="{% url 'index:delete-texto' pk=item.pk %}" hx-confirm="deletar texto '{{ item }}?'" hx-target="#li-{{ item.pk }}">x</span>]</span>
+        </li>
+        {% if item.subtextos %}
+        {% include 'index/base/titulos_lista.html' with lista=item.subtextos.all class="ml1" %}
+        {% endif %}
+    {% endfor %}
+</ol>
+    

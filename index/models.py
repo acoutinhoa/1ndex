@@ -17,7 +17,7 @@ class Link(models.Model):
     url = models.URLField()
 
     def __str__(self):
-        return str(self.nome)
+        return self.nome
 
 
 class Base(models.Model):
@@ -28,7 +28,7 @@ class Base(models.Model):
     links = models.ManyToManyField(Link)
 
     def __str__(self):
-        return str(self.nome)
+        return self.nome
 
     class Meta:
         abstract = True
@@ -66,7 +66,7 @@ class User(AbstractUser, Base):
         return reverse('index:perfil', kwargs={'url': self.url})
 
     def __str__(self):
-        return str(self.username)
+        return self.username
 
 class Grupo(Base):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -90,7 +90,6 @@ class Grupo(Base):
         if novo:
             Url.objects.create(nome=self.define_url(), grupo=self) # define url do grupo
         
-
     def get_absolute_url(self):
         return reverse('index:perfil', kwargs={'url': self.url})
 
@@ -110,7 +109,7 @@ class Url(models.Model):
         super().save(*args, **kwargs)       
 
     def __str__(self):
-        return str(self.nome)
+        return self.nome
 
     class Meta:
         ordering = ['id']
@@ -128,7 +127,7 @@ class Convite(models.Model):
     email = models.EmailField(blank=True, null=True)
 
     def __str__(self):
-        return str(self.nome)
+        return self.nome
 
     class Meta:
         ordering = ['-d0']
@@ -140,9 +139,10 @@ class Convite(models.Model):
 class Tag(models.Model):
     nome = models.CharField(max_length=39)
     publico = models.BooleanField(default=True)
+    # contador = models.PositiveIntegerField(default=0)
 
     def __str__(self):
-        return str(self.nome)
+        return self.nome
 
     class Meta:
         ordering = ['nome']
@@ -150,7 +150,6 @@ class Tag(models.Model):
 
 class Projeto(Base):
     u0 = models.ForeignKey(User, on_delete=models.CASCADE) # >>>>>>>>>>>>> definir o on_delete
-    texto = models.TextField(blank=True, null=True)
     publico = models.BooleanField(default=False)
     perfil = models.ForeignKey(Url, on_delete=models.CASCADE, related_name='projetos', blank=True, null=True)
     tags = models.ManyToManyField(Tag, related_name='projetos')
@@ -159,6 +158,7 @@ class Projeto(Base):
     Etapa = models.IntegerChoices("Etapa", "RASCUNHO DESENVOLVIMENTO FINALIZADO")
     etapa = models.IntegerField(choices=Etapa, default=3)
     links = models.ManyToManyField(Link, related_name='projetos')
+    # texto = models.TextField(blank=True, null=True)
     # imagens = models.ManyToManyField(Imagem, related_name='projetos')
     # -equipe [m2m] [user] > [trabalho] (X criador) ‘projetos’
     # -ordem [] ()
@@ -183,30 +183,55 @@ class Projeto(Base):
     def get_absolute_url(self):
         return reverse('index:projeto', kwargs={'url': self.perfil, 'purl':self.url})
 
+
+class Texto(models.Model):
+    projeto = models.ForeignKey(Projeto, on_delete=models.CASCADE, related_name='textos')
+    d1 = models.DateTimeField(auto_now=True)
+    publico = models.BooleanField(default=False)
+    superior = models.ForeignKey('self', on_delete=models.CASCADE, related_name='subtextos', blank=True, null=True, verbose_name="subtitulo de")
+    titulo = models.CharField(max_length=219)
+    texto = models.TextField(blank=True, null=True)
+    ordem = models.PositiveIntegerField(default=0)
+
+    def mudar_visibilidade(self):
+        self.publico = not self.publico
+        self.save()
+
+    def __str__(self):
+        if len(self.titulo) > 39:
+            return f'{self.titulo[:39]}[...]'
+        else:
+            return self.titulo
+    
+    def save(self, *args, **kwargs):
+        if self._state.adding: 
+            if self.superior:
+                self.ordem = Texto.objects.filter(projeto=self.projeto, superior=self.superior).count() + 1
+            else:
+                self.ordem = Texto.objects.filter(projeto=self.projeto, superior=None).count() + 1
+        super().save(*args, **kwargs)
+
+    class Meta:
+        ordering = ['ordem']
+
 def projeto_imagepath(instance, filename):
     return f'index/{instance.projeto.perfil}/{instance.projeto.pk}/{filename}'
 
 class Imagem(models.Model):
-    projeto = models.ForeignKey(Projeto, on_delete=models.CASCADE, related_name='imagens', blank=True)
+    projeto = models.ForeignKey(Projeto, on_delete=models.CASCADE, related_name='imagens')
     nome = models.CharField(max_length=39, blank=True, null=True)
     imagem = models.ImageField(upload_to=projeto_imagepath, max_length=100)
     capa = models.BooleanField(default=False)
     carrossel = models.BooleanField(default=True)
 
     def __str__(self):
-        return str(self.nome)
-
-    # def clean(self):
-    #     super().clean()
-    #     if Imagem.objects.filter(projeto=self.projeto, nome=self.nome).exclude(id=self.id).exists():
-    #         raise ValidationError("este nome de imagem já existe neste projeto")
+        return self.nome
 
     def save(self, *args, **kwargs):
-        # if not self._state.adding: 
-        #     self.full_clean()  # verifica se o nome é unico por projeto
         if self.nome and Imagem.objects.filter(projeto=self.projeto, nome=self.nome).exclude(id=self.id).exists():
             self.nome = f'{self.nome}-{self.pk}'
         super().save(*args, **kwargs)
+        # cria um nome depois de salvar a imagem
         if not self.nome:
             self.nome = f'img-{self.pk}'
             self.save()  # salva o nome da imagem

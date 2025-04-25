@@ -1,7 +1,10 @@
+<p class="legenda c2 mt1">salvo em <b>{{ texto.d1|date:"d/m/y" }}</b> às <b>{{ texto.d1|date:"H:i:s" }}</b></p>
 <form 
     method="POST" 
-    hx-post="{% url 'index:projeto-edit-texto' url=url purl=projeto.url %}" 
+    class="w80 mt2"
+    hx-post="{{ post }}" 
     hx-target='#form-texto'
+    hx-trigger="change, keyup delay:30s, submit"
     autocomplete="off">
     {% csrf_token %}
     
@@ -11,12 +14,8 @@
     {% if field.errors %}<div class="legenda c2 mb2">{{ field.errors }}</div>{% endif %}
     {% endfor %}
 
-    <input 
+    {% comment %} <input 
         type="submit" 
         class="link btn c2 center" 
-        value="salvar" />
+        value="salvar" /> {% endcomment %}
 </form>
-
-{% if msg %}
-{% include 'index/base/msg.html' with tipo='clear' %}
-{% endif %}

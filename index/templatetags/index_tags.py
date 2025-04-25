@@ -84,7 +84,7 @@ def url_tags_add(tag, lista):
 	path=''
 	if lista:
 		for item in lista:
-			path += f'{item.id}+'
+			path += f'{item.id}/'
 	path += str(tag.id)
 	return path
 
@@ -94,7 +94,7 @@ def url_tags_remove(tag, lista):
 	if lista:
 		path=''
 		for item in lista:
-			path += f'{item.id}+'
+			path += f'{item.id}/'
 		return path[:-1] # remove o ultimo '+'
 	else:
 		return 'None'

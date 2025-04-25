@@ -13,7 +13,8 @@ projeto_edit_htmx_patterns = [
     path('links/', views.projeto_edit_links, name='projeto-edit-links'),
     path('tags/privada/', views.projeto_edit_tags, {"publico": False}, name='projeto-edit-tags-privada'),
     path('tags/', views.projeto_edit_tags, name='projeto-edit-tags'),
-    path('texto/', views.projeto_edit_texto, name='projeto-edit-texto'),
+    path('textos/', views.projeto_edit_texto, name='projeto-edit-textos'),
+    path('textos/<str:pk>/', views.projeto_edit_texto, name='projeto-edit-textos'),
     path('imagens/', views.projeto_edit_imagens, name='projeto-edit-imagens'),
     path('equipe/', views.projeto_edit_equipe, name='projeto-edit-equipe'),
 ]
@@ -88,7 +89,7 @@ edit_htmx_patterns = [
 # perfil
 perfil_patterns = [
     path('', views.index, name='perfil'),
-    path('tags/<str:filtros>/', views.index, name='perfil-tags'),
+    path('tags/<path:filtros>/', views.index, name='perfil-tags'),
     # edit
     path('edit/', views.edit, name='edit'),
     path('edit/<str:ativo>/', views.edit, name='edit-ativo'),
@@ -99,7 +100,7 @@ perfil_patterns = [
     # htmx
     path('htmx/search/adm/', views.search_adm, name='search-adm'),
     path('htmx/visibilidade/grupo/', views.grupo_visibilidade, name='grupo-visibilidade'),
-    path('htmx/tags/<str:filtros>/', views.tags, name='tags-perfil'),
+    path('htmx/tags/<path:filtros>/', views.tags, name='tags-perfil'),
     # projetos
     path('<str:purl>/', include(projeto_patterns)),
 ]
@@ -122,10 +123,15 @@ invite_patterns = [
 
 htmx_patterns = [
     path('clear/', views.clear, name='clear'),
-    path('tags/<str:filtros>/', views.tags, name='tags-index'),
+    path('tags/<path:filtros>/', views.tags, name='tags-index'),
+    path('visibilidade/texto/<str:pk>/', views.projeto_texto_visibilidade, name='texto-visibilidade'),
+    # edit
+    path('edit/texto/<str:pk>/', views.projeto_texto_form, name='edit-texto'),
+    path('edit/titulo/<str:pk>/', views.projeto_titulo_form, name='edit-titulo'),
     # delete
     path('delete/link/<str:pk>/', views.delete_link, name='delete-link'),
     path('delete/imagem/<str:pk>/', views.delete_imagem, name='delete-imagem'),
+    path('delete/texto/<str:pk>/', views.delete_texto, name='delete-texto'),
     # check
     path('check/codinome/', views.check_codinome, name='check-codinome'),
     path('check/codinome/<str:url>/', views.check_codinome, name='check-url'),
@@ -140,7 +146,7 @@ htmx_patterns = [
 
 urlpatterns = [
     path('', views.index, name='index'),
-    path('tags/<str:filtros>/', views.index, name='index-tags'),
+    path('tags/<path:filtros>/', views.index, name='index-tags'),
     path('invite/<str:pk>/', include(invite_patterns)),
     path('htmx/', include(htmx_patterns)),
     path('<str:url>/', include(perfil_patterns)),

@@ -59,13 +59,43 @@ class ProjetoForm(forms.ModelForm):
             }
 
 # projetos texto
-class ProjetoTextoForm(forms.ModelForm):
+class TextoForm(forms.ModelForm):
     class Meta:
-        model = Projeto
+        model = Texto
         fields = ['texto']
         widgets = { 
-            'texto': forms.Textarea(attrs={'rows': 19, 'placeholder': 'texto do projeto', }),
+            'texto': forms.Textarea(attrs={'rows': 19, }),
             }
+
+# projetos texto titulo
+class TituloForm(forms.ModelForm):
+    class Meta:
+        model = Texto
+        fields = ['titulo', 'superior', 'ordem' ]
+        widgets = { 
+            'titulo': forms.Textarea(attrs={'rows': 1, }),
+            'ordem': forms.Select(choices=[(i, i) for i in range(0, 11)]),
+            }
+        
+    def __init__(self, *args, **kwargs):
+        projeto = kwargs.pop('projeto', None)
+        pk = kwargs.pop('pk', None)
+        super().__init__(*args, **kwargs)
+        if pk:
+            self.fields['superior'].queryset = Texto.objects.filter(projeto=projeto).exclude(pk=pk)
+        else:
+            self.fields['superior'].queryset = Texto.objects.filter(projeto=projeto)
+        # self.fields['ordem'].choices = [(i,i) for i in range(1, Texto.objects.filter(projeto=projeto).count() + 1)]
+
+# # projetos texto add
+# class TextoForm(forms.ModelForm):
+#     class Meta:
+#         model = Texto
+#         fields = ['superior', 'titulo', 'texto']
+#         widgets = { 
+#             'titulo': forms.Textarea(attrs={'rows': 2, }),
+#             'texto': forms.Textarea(attrs={'rows': 19, }),
+#             }
 
 # projeto imagens
 ImagensFormSet = forms.inlineformset_factory(
