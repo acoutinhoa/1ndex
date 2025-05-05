@@ -2,10 +2,9 @@
 {% load index_tags %}
 
 {% block content %}
-{% set convite.pronome as artigo %}
 
 {% if not request.user.is_authenticated %}
-    <h2 >olá {{ convite.nome }}<br> bem vind{% pronome artigo %} ao 1ndex</h2>
+    <h2>olá {{ convite.nome }}<br> bem vind<span class="c1" id="hello">{% pronome convite.pronome %}</span> ao 1ndex</h2>
     <div class="mt1 w80 mb2">
         este é um projeto <b>em desenvolvimento</b>, criado inicialmente para documentar processos e gerar portfólios.<br><br>
         ao se cadastrar com este link, <b>{{ convite.u0 }}</b> será responsável por você no sistema.<br><br>

@@ -188,7 +188,7 @@ class Texto(models.Model):
     projeto = models.ForeignKey(Projeto, on_delete=models.CASCADE, related_name='textos')
     d1 = models.DateTimeField(auto_now=True)
     publico = models.BooleanField(default=False)
-    superior = models.ForeignKey('self', on_delete=models.CASCADE, related_name='subtextos', blank=True, null=True, verbose_name="subtitulo de")
+    superior = models.ForeignKey('self', on_delete=models.CASCADE, related_name='subtextos', blank=True, null=True, verbose_name="subtítulo de")
     titulo = models.CharField(max_length=219)
     texto = models.TextField(blank=True, null=True)
     ordem = models.PositiveIntegerField(default=0)

@@ -73,8 +73,8 @@ class TituloForm(forms.ModelForm):
         model = Texto
         fields = ['titulo', 'superior', 'ordem' ]
         widgets = { 
-            'titulo': forms.Textarea(attrs={'rows': 1, }),
-            'ordem': forms.Select(choices=[(i, i) for i in range(0, 11)]),
+            'titulo': forms.Textarea(attrs={'rows': 1, 'placeholder': 'título', }),
+            'ordem': forms.Select(choices=[(0,'último')]+[(i, i) for i in range(1, 11)]),
             }
         
     def __init__(self, *args, **kwargs):

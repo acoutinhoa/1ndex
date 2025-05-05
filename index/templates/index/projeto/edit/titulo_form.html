@@ -15,7 +15,7 @@
                     <b>{{ form.titulo.label_tag }}</b>
                     {{ form.titulo }}
                 {% else %}
-                    {% render_field form.titulo placeholder="novo título" %}
+                    {% render_field form.titulo %}
                 {% endif %}
                 {% if form.titulo.errors %}<div class="legenda c2 mb2">{{ form.titulo.errors }}</div>{% endif %}
             </div>

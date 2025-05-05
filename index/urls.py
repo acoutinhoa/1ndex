@@ -123,6 +123,7 @@ invite_patterns = [
 
 htmx_patterns = [
     path('clear/', views.clear, name='clear'),
+    path('pronome/', views.pronome,  name='pronome'),
     path('tags/<path:filtros>/', views.tags, name='tags-index'),
     path('visibilidade/texto/<str:pk>/', views.projeto_texto_visibilidade, name='texto-visibilidade'),
     # edit

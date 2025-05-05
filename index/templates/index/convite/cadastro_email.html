@@ -8,7 +8,7 @@
     {% csrf_token %}
 
     <div class="c1 b lower">{{ form.pronome.label_tag }}</div>
-    {{ form.pronome }}
+    {% render_field form.pronome hx-get="/htmx/pronome/" hx-target="#hello" hx-trigger="change" %}
 
     {% if request.user == convite.u0 %}
     <div class="c1 b lower mt">{{ form.email.label_tag }}</div>
